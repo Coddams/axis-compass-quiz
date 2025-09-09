@@ -1,9 +1,21 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Compass } from "lucide-react";
+import { ArrowRight, Compass, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { useUser } from "@/contexts/UserContext";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { userName, setUserName } = useUser();
+  const [inputName, setInputName] = useState(userName);
+
+  const handleStartQuiz = () => {
+    if (inputName.trim()) {
+      setUserName(inputName.trim());
+    }
+    navigate("/quiz");
+  };
 
   return (
     <div 
@@ -73,10 +85,24 @@ const LandingPage = () => {
           </div>
         </div>
 
+        {/* Name Input */}
+        <div className="max-w-md mx-auto space-y-4">
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Enter your name (optional)"
+              value={inputName}
+              onChange={(e) => setInputName(e.target.value)}
+              className="pl-10 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:ring-primary focus:border-primary"
+            />
+          </div>
+        </div>
+
         {/* CTA Button */}
-        <div className="pt-8">
+        <div className="pt-4">
           <Button 
-            onClick={() => navigate("/quiz")}
+            onClick={handleStartQuiz}
             className="btn-hero group"
           >
             Start the Quiz

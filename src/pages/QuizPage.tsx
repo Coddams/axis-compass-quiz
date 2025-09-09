@@ -5,6 +5,7 @@ import QuestionCard from "@/components/QuestionCard";
 import ProgressBar from "@/components/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { quizQuestions } from "@/data/quizData";
+import { useUser } from "@/contexts/UserContext";
 
 interface UserAnswer {
   economic: number;
@@ -13,6 +14,7 @@ interface UserAnswer {
 
 const QuizPage = () => {
   const navigate = useNavigate();
+  const { userName } = useUser();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<{ text: string; economic: number; social: number } | null>(null);
@@ -76,7 +78,7 @@ const QuizPage = () => {
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            Political Compass Quiz
+            {userName ? `${userName}'s Political Compass Quiz` : 'Political Compass Quiz'}
           </h1>
           <ProgressBar current={currentQuestion + 1} total={quizQuestions.length} />
         </div>
