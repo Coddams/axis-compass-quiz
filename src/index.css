@@ -78,10 +78,6 @@
     @apply bg-background text-foreground font-inter;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-
-  html {
-    @apply dark;
-  }
 }
 
 @layer components {
@@ -146,15 +142,5 @@
 
   .page-exit-active {
     @apply opacity-0 -translate-y-4 transition-all duration-300 ease-in;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
   }
 }
