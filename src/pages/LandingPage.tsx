@@ -6,8 +6,13 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-4">
-      <div className="max-w-4xl mx-auto text-center space-y-8 page-enter page-enter-active">
+    <div 
+      className="min-h-screen flex items-center justify-center px-4 relative bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(/lovable-uploads/fe294dfa-bc92-487e-80b6-f2a8927d8703.png)` }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/70"></div>
+      <div className="max-w-4xl mx-auto text-center space-y-8 page-enter page-enter-active relative z-10">
         {/* Logo */}
         <div className="flex items-center justify-center space-x-3 mb-8">
           <Compass className="w-12 h-12 text-primary" />
