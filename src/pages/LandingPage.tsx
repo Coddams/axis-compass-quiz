@@ -12,6 +12,8 @@ const LandingPage = () => {
     >
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/70"></div>
+      
+      {/* Content */}
       <div className="max-w-4xl mx-auto text-center space-y-8 page-enter page-enter-active relative z-10">
         {/* Logo */}
         <div className="flex items-center justify-center space-x-3 mb-8">
