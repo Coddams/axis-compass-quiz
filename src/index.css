@@ -1,5 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+@font-face {
+  font-family: 'Old Newspaper';
+  src: url('/fonts/Old Newspaper Font.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,59 +15,59 @@
 
 @layer base {
   :root {
-    /* Axis Brand Colors - Deep Navy Theme */
-    --background: 220 30% 8%;
-    --foreground: 210 40% 98%;
+    /* Axis Brand Colors - Vintage Parchment Theme */
+    --background: 30 25% 12%; /* deep brown backdrop */
+    --foreground: 40 30% 95%; /* ivory/antique white for text */
 
-    --card: 220 25% 12%;
-    --card-foreground: 210 40% 98%;
+    --card: 35 30% 85%; /* parchment beige */
+    --card-foreground: 30 20% 15%; /* dark ink text on cards */
 
-    --popover: 220 25% 12%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 30 25% 18%; /* darker brown for popovers */
+    --popover-foreground: 40 30% 95%; /* ivory text */
 
-    --primary: 215 85% 25%;
-    --primary-foreground: 210 40% 98%;
-    --primary-glow: 215 85% 35%;
+    --primary: 5 60% 35%; /* deep burgundy */
+    --primary-foreground: 40 30% 95%; /* ivory text */
+    --primary-glow: 5 70% 45%; /* slightly brighter burgundy glow */
 
-    --secondary: 220 20% 18%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 45 40% 40%; /* muted golden brown */
+    --secondary-foreground: 40 30% 95%; /* ivory */
 
-    --muted: 220 15% 15%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 30 20% 25%; /* earthy muted brown */
+    --muted-foreground: 35 20% 70%; /* soft beige text */
 
-    --accent: 215 85% 25%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 150 35% 35%; /* forest green accent */
+    --accent-foreground: 40 30% 95%; /* ivory */
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 45%; /* rich brick red */
+    --destructive-foreground: 40 30% 95%; /* ivory */
 
-    --border: 220 20% 20%;
-    --input: 220 20% 18%;
-    --ring: 215 85% 35%;
+    --border: 30 20% 30%; /* dark brown border */
+    --input: 30 20% 25%; /* input bg */
+    --ring: 45 60% 45%; /* warm golden ring highlight */
 
     --radius: 0.75rem;
 
     /* Axis Custom Design Tokens */
-    --navy-deep: 220 30% 8%;
-    --navy-darker: 220 25% 12%;
-    --navy-dark: 220 20% 18%;
-    --navy-medium: 220 15% 25%;
-    --navy-light: 215 20% 65%;
-    
-    --compass-red: 0 70% 50%;
-    --compass-blue: 215 85% 55%;
-    --compass-green: 120 50% 45%;
-    --compass-yellow: 45 95% 55%;
+    --parchment-deep: 30 25% 12%;
+    --parchment-dark: 30 20% 18%;
+    --parchment-medium: 35 30% 30%;
+    --parchment-light: 35 30% 85%;
+    --parchment-ivory: 40 30% 95%;
+
+    --compass-red: 0 65% 45%; /* toned to match parchment */
+    --compass-green: 150 35% 35%;
+    --compass-gold: 45 70% 50%;
+    --compass-blue: 200 40% 35%; /* muted navy for balance */
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-compass: radial-gradient(circle at center, hsl(var(--navy-darker)), hsl(var(--navy-deep)));
-    --gradient-hero: linear-gradient(180deg, hsl(var(--navy-deep)), hsl(var(--navy-darker)));
+    --gradient-compass: radial-gradient(circle at center, hsl(var(--parchment-dark)), hsl(var(--parchment-deep)));
+    --gradient-hero: linear-gradient(180deg, hsl(var(--parchment-deep)), hsl(var(--parchment-dark)));
 
     /* Shadows */
-    --shadow-soft: 0 4px 12px -2px hsl(var(--navy-deep) / 0.3);
-    --shadow-medium: 0 8px 25px -5px hsl(var(--navy-deep) / 0.4);
-    --shadow-strong: 0 20px 40px -12px hsl(var(--navy-deep) / 0.6);
+    --shadow-soft: 0 4px 12px -2px hsl(var(--parchment-deep) / 0.3);
+    --shadow-medium: 0 8px 25px -5px hsl(var(--parchment-deep) / 0.4);
+    --shadow-strong: 0 20px 40px -12px hsl(var(--parchment-deep) / 0.6);
     --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.3);
 
     /* Animations */
@@ -68,6 +75,7 @@
     --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
+
 
 @layer base {
   * {
@@ -77,6 +85,7 @@
   body {
     @apply bg-background text-foreground font-inter;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Old Newspaper', 'Inter', serif;
   }
 }
 
@@ -112,6 +121,7 @@
   /* Result Card */
   .result-card {
     @apply bg-card border border-border rounded-xl p-6 shadow-medium hover:shadow-strong transition-all duration-300;
+    
   }
 
   /* Share Button Variants */
