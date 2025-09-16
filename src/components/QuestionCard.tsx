@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 
+// Canonical answer shape
 interface Answer {
+  id: string;
   text: string;
-  economic: number;
-  social: number;
+  vector: [number, number, number]; // econ, social, foreign
 }
 
 interface QuestionCardProps {
   question: string;
   answers: Answer[];
   onAnswer: (answer: Answer) => void;
-  selectedAnswer?: Answer;
+  selectedAnswer?: Answer | null;
 }
 
 const QuestionCard = ({ question, answers, onAnswer, selectedAnswer }: QuestionCardProps) => {
@@ -27,19 +28,19 @@ const QuestionCard = ({ question, answers, onAnswer, selectedAnswer }: QuestionC
 
       <div className="space-y-3">
         {answers.map((answer, index) => {
-          const isSelected = selectedAnswer === answer;
+          const isSelected = selectedAnswer?.id === answer.id; // ✅ compare by id
           const isHovered = hoveredIndex === index;
-          
+
           return (
             <button
-              key={index}
+              key={answer.id}
               onClick={() => onAnswer(answer)}
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
               className={`
                 btn-answer w-full relative
-                ${isSelected ? 'selected' : ''}
-                ${isHovered && !isSelected ? 'bg-accent/50' : ''}
+                ${isSelected ? "selected" : ""}
+                ${isHovered && !isSelected ? "bg-accent/50" : ""}
               `}
             >
               <div className="flex items-center justify-between">

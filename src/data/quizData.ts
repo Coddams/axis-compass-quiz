@@ -1,208 +1,133 @@
-// Axis Quiz Data - Placeholder JSON for questions and political figures
+// src/data/quizData.ts
+// NOTE: ensure tsconfig.json has "resolveJsonModule": true and "esModuleInterop": true
+import questionsRaw from "../config/questions.json";
+import figuresRaw from "../config/figures.json";
+import ideologiesRaw from "../config/ideologies.json";
+import axesRaw from "../config/axes.json";
 
-export interface QuizQuestion {
-  id: number;
+/**
+ * Canonical exports (3-axis, -2..2) for future-proofing / admin editors
+ * This is now the **only** format consumed by the UI.
+ */
+export type CanonQuestion = {
+  id: string;
   text: string;
   answers: {
+    id: string;
     text: string;
-    economic: number; // -5 to 5 (left to right)
-    social: number;   // -5 to 5 (authoritarian to libertarian)
+    vector: [number, number, number]; // econ, social, foreign in -2..2
+    implications?: { pros?: string[]; cons?: string[] };
   }[];
-}
+};
 
-export interface PoliticalFigure {
+export type CanonFigure = {
   id: string;
   name: string;
-  description: string;
+  era?: string;
+  country?: string;
+  quote?: string;
+  axis_alignment: { economic: number; social: number; foreign: number }; // -2..2
+  explain?: string;
+  uncertainty?: number;
+};
+
+// Canonical data, exported directly
+export const questions = questionsRaw as CanonQuestion[];
+export const figures = figuresRaw as CanonFigure[];
+export const ideologies = ideologiesRaw;
+export const axes = axesRaw;
+
+/**
+ * Map a canonical user vector (3-axis) to an ideology.
+ * Returns the first ideology that matches, or null if none.
+ */
+export function findIdeologyForVector(userVector: {
   economic: number;
   social: number;
-  image: string;
+  foreign: number;
+}) {
+  for (const ide of ideologiesRaw as any[]) {
+    const re = ide.range;
+    const econOk =
+      userVector.economic >= re.economic[0] &&
+      userVector.economic <= re.economic[1];
+    const socOk =
+      userVector.social >= re.social[0] &&
+      userVector.social <= re.social[1];
+    const forOk =
+      userVector.foreign >= re.foreign[0] &&
+      userVector.foreign <= re.foreign[1];
+
+    if (econOk && socOk && forOk) {
+      return ide;
+    }
+  }
+  return null;
 }
 
-export const quizQuestions: QuizQuestion[] = [
-  {
-    id: 1,
-    text: "What is your view on economic regulation?",
-    answers: [
-      { text: "The market should be heavily regulated to prevent exploitation", economic: -3, social: 0 },
-      { text: "Some regulation is necessary, but markets should remain mostly free", economic: 1, social: 0 },
-      { text: "Minimal regulation - let the market decide", economic: 4, social: 0 },
-      { text: "Complete deregulation - no government interference", economic: 5, social: 2 }
-    ]
-  },
-  {
-    id: 2,
-    text: "How should society handle personal freedoms?",
-    answers: [
-      { text: "Strong government oversight is needed to maintain order", economic: 0, social: -3 },
-      { text: "Some restrictions are necessary for public safety", economic: 0, social: -1 },
-      { text: "Personal freedoms should be maximized with minimal restrictions", economic: 0, social: 3 },
-      { text: "Absolute personal freedom - no government interference", economic: 0, social: 5 }
-    ]
-  },
-  {
-    id: 3,
-    text: "What's your stance on healthcare?",
-    answers: [
-      { text: "Universal healthcare provided by the government", economic: -4, social: 1 },
-      { text: "Public-private healthcare system with government support", economic: -1, social: 0 },
-      { text: "Mostly private with minimal government involvement", economic: 2, social: 0 },
-      { text: "Completely privatized healthcare system", economic: 4, social: 1 }
-    ]
-  },
-  {
-    id: 4,
-    text: "How should education be handled?",
-    answers: [
-      { text: "Free public education funded entirely by government", economic: -3, social: -1 },
-      { text: "Mixed public and private options with government support", economic: 0, social: 0 },
-      { text: "School choice with vouchers and competition", economic: 2, social: 1 },
-      { text: "Completely privatized education system", economic: 4, social: 2 }
-    ]
-  },
-  {
-    id: 5,
-    text: "What's your view on law enforcement?",
-    answers: [
-      { text: "Strong police presence is essential for societal order", economic: 1, social: -3 },
-      { text: "Police reform is needed, but law enforcement remains important", economic: -1, social: -1 },
-      { text: "Significant reduction in police power and funding", economic: -2, social: 2 },
-      { text: "Abolish traditional policing in favor of community solutions", economic: -3, social: 4 }
-    ]
-  },
-  {
-    id: 6,
-    text: "How should taxes be structured?",
-    answers: [
-      { text: "High progressive taxes to fund extensive social programs", economic: -4, social: 0 },
-      { text: "Moderate taxes with targeted social spending", economic: -1, social: 0 },
-      { text: "Low taxes with minimal government spending", economic: 3, social: 1 },
-      { text: "Minimal to no taxes - voluntary funding only", economic: 5, social: 3 }
-    ]
-  },
-  {
-    id: 7,
-    text: "What's your stance on drug policy?",
-    answers: [
-      { text: "Strict prohibition with harsh penalties", economic: 0, social: -4 },
-      { text: "Decriminalization with treatment programs", economic: -1, social: 1 },
-      { text: "Legalization with government regulation", economic: 0, social: 3 },
-      { text: "Complete legalization without government interference", economic: 2, social: 5 }
-    ]
-  },
-  {
-    id: 8,
-    text: "How should immigration be handled?",
-    answers: [
-      { text: "Strict border control with limited immigration", economic: 1, social: -3 },
-      { text: "Controlled immigration with clear pathways to citizenship", economic: 0, social: 0 },
-      { text: "Open borders with minimal restrictions", economic: -1, social: 3 },
-      { text: "Complete freedom of movement across borders", economic: 0, social: 5 }
-    ]
-  }
-];
 
-export const politicalFigures: PoliticalFigure[] = [
-  {
-    id: "gandhi",
-    name: "Mahatma Gandhi",
-    description: "Non-violent resistance advocate",
-    economic: -3,
-    social: 4,
-    image: "/api/placeholder/80/80"
-  },
-  {
-    id: "reagan",
-    name: "Ronald Reagan",
-    description: "Conservative economic policies",
-    economic: 4,
-    social: -1,
-    image: "/api/placeholder/80/80"
-  },
-  {
-    id: "mandela",
-    name: "Nelson Mandela",
-    description: "Social justice and equality champion",
-    economic: -2,
-    social: 3,
-    image: "/api/placeholder/80/80"
-  },
-  {
-    id: "thatcher",
-    name: "Margaret Thatcher",
-    description: "Free market capitalism advocate",
-    economic: 5,
-    social: -2,
-    image: "/api/placeholder/80/80"
-  },
-  {
-    id: "stalin",
-    name: "Joseph Stalin",
-    description: "Authoritarian communist leader",
-    economic: -5,
-    social: -5,
-    image: "/api/placeholder/80/80"
-  },
-  {
-    id: "friedman",
-    name: "Milton Friedman",
-    description: "Libertarian economist",
-    economic: 4,
-    social: 2,
-    image: "/api/placeholder/80/80"
-  },
-  {
-    id: "chomsky",
-    name: "Noam Chomsky",
-    description: "Libertarian socialist thinker",
-    economic: -4,
-    social: 4,
-    image: "/api/placeholder/80/80"
-  },
-  {
-    id: "pinochet",
-    name: "Augusto Pinochet",
-    description: "Authoritarian capitalist dictator",
-    economic: 4,
-    social: -5,
-    image: "/api/placeholder/80/80"
-  }
-];
-
-export interface QuizResult {
+// Result type
+export type QuizResult = {
   economic: number;
   social: number;
+  foreign: number;
+  ideology: any | null;
   topMatches: {
-    figure: PoliticalFigure;
+    figure: CanonFigure;
     similarity: number;
   }[];
-}
+};
 
-export function calculateResult(answers: { economic: number; social: number }[]): QuizResult {
-  // Calculate average scores
-  const economic = answers.reduce((sum, answer) => sum + answer.economic, 0) / answers.length;
-  const social = answers.reduce((sum, answer) => sum + answer.social, 0) / answers.length;
+/**
+ * Calculate a user's result based on their answers
+ */
+export function calculateResult(
+  answers: { economic: number; social: number; foreign: number }[]
+): QuizResult {
+  let econ = 0, soc = 0, forn = 0;
+  let count = 0;
 
-  // Calculate similarity to political figures
-  const similarities = politicalFigures.map(figure => {
-    const distance = Math.sqrt(
-      Math.pow(figure.economic - economic, 2) + 
-      Math.pow(figure.social - social, 2)
-    );
-    return {
-      figure,
-      similarity: Math.max(0, 100 - (distance * 10)) // Convert distance to similarity percentage
-    };
+  // Loop through the stored vectors directly
+  for (const a of answers) {
+    econ += a.economic;
+    soc += a.social;
+    forn += a.foreign;
+    count++;
+  }
+
+  // Average them
+  if (count > 0) {
+    econ /= count;
+    soc /= count;
+    forn /= count;
+  }
+
+  // Match ideology
+  const ideology = findIdeologyForVector({
+    economic: econ,
+    social: soc,
+    foreign: forn,
   });
 
-  // Sort by similarity and take top 3
-  const topMatches = similarities
+  // Match top 3 figures by Euclidean similarity
+  const topMatches = figures
+    .map((f) => {
+      const dx = econ - f.axis_alignment.economic;
+      const dy = soc - f.axis_alignment.social;
+      const dz = forn - f.axis_alignment.foreign;
+      const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      const maxDistance = Math.sqrt(3 * 4); // worst case (-2 to +2 per axis)
+      const similarity = Math.max(0, 100 * (1 - distance / maxDistance));
+      return { figure: f, similarity };
+    })
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, 3);
 
   return {
-    economic: Math.round(economic * 10) / 10,
-    social: Math.round(social * 10) / 10,
-    topMatches
+    economic: econ,
+    social: soc,
+    foreign: forn,
+    ideology,
+    topMatches,
   };
 }

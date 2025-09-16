@@ -1,0 +1,82 @@
+[
+  {
+    "id": "social_democrat",
+    "name": "Social Democrat",
+    "range": {
+      "economic": [-2, -0.5],
+      "social": [-0.5, 1],
+      "foreign": [-1, 1]
+    },
+    "description": "You believe in strong public programs, fair redistribution, and balancing freedom with social responsibility."
+  },
+  {
+    "id": "progressive",
+    "name": "Progressive",
+    "range": {
+      "economic": [-2, -0.5],
+      "social": [-2, -1],
+      "foreign": [-1, 1]
+    },
+    "description": "You want bold reforms to tackle inequality and injustice. You value inclusivity and diversity."
+  },
+  {
+    "id": "centrist",
+    "name": "Centrist",
+    "range": {
+      "economic": [-0.5, 0.5],
+      "social": [-0.5, 0.5],
+      "foreign": [-0.5, 0.5]
+    },
+    "description": "You believe in balance and compromise. You value both markets and government action."
+  },
+  {
+    "id": "neoliberal",
+    "name": "Neoliberal",
+    "range": {
+      "economic": [0.5, 2],
+      "social": [-0.5, 0.5],
+      "foreign": [0.5, 2]
+    },
+    "description": "You trust markets and globalization. You value economic growth, trade and international cooperation."
+  },
+  {
+    "id": "libertarian",
+    "name": "Libertarian",
+    "range": {
+      "economic": [1, 2],
+      "social": [-2, -1],
+      "foreign": [-1, 1]
+    },
+    "description": "You value personal freedom above all. You want minimal state role in the economy and private lives."
+  },
+  {
+    "id": "authoritarian_conservative",
+    "name": "Authoritarian Conservative",
+    "range": {
+      "economic": [0, 1.5],
+      "social": [1, 2],
+      "foreign": [0, 2]
+    },
+    "description": "You emphasize law, order, and tradition. You support strong leadership and a firm stance abroad."
+  },
+  {
+    "id": "nationalist_populist",
+    "name": "Nationalist Populist",
+    "range": {
+      "economic": [-0.5, 0.5],
+      "social": [1, 2],
+      "foreign": [1, 2]
+    },
+    "description": "You prioritize national sovereignty and culture, and favor protecting ordinary citizens from elite interests."
+  },
+  {
+    "id": "anarchist",
+    "name": "Anarchist",
+    "range": {
+      "economic": [-2, -1],
+      "social": [-2, -1],
+      "foreign": [-2, -1]
+    },
+    "description": "You reject centralized authority and prefer voluntary cooperation over state power."
+  }
+]

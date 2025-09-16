@@ -1,0 +1,23 @@
+[
+  {
+    "id": "economic",
+    "name": "Economic",
+    "low": "Right — free markets, low taxes, privatization",
+    "high": "Left — higher taxes, government services, redistribution",
+    "description": "Measures views on the economy, from free-market capitalism to government-driven socialism. Values range -2 (market) to +2 (state)."
+  },
+  {
+    "id": "social",
+    "name": "Social",
+    "low": "Libertarian — individual freedom, minimal state control",
+    "high": "Authoritarian — law and order, strict rules, strong state control",
+    "description": "Measures attitudes toward social authority and civil liberties. Values range -2 (libertarian) to +2 (authoritarian)."
+  },
+  {
+    "id": "foreign",
+    "name": "Foreign Policy",
+    "low": "Non-interventionist — diplomacy first, avoid foreign wars",
+    "high": "Interventionist — military action, global influence, active abroad",
+    "description": "Measures views about foreign policy engagement. Values range -2 (non-intervention) to +2 (intervention)."
+  }
+]

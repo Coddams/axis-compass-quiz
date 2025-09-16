@@ -1,0 +1,632 @@
+[
+  {
+    "id": "q1",
+    "text": "Bank trouble: A big bank is failing and people are pulling their money. You are president — you:",
+    "answers": [
+      {
+        "id": "q1a",
+        "text": "Guarantee everyone's money and put public money into the bank.",
+        "vector": [1, 1, 0],
+        "implications": {
+          "pros": ["Stops panic fast; people keep access to their savings."],
+          "cons": ["Costs the government a lot; seen as bailing out rich bankers."]
+        }
+      },
+      {
+        "id": "q1b",
+        "text": "Guarantee small savers only; let big investors lose money.",
+        "vector": [0, 0, 0],
+        "implications": {
+          "pros": ["Protects ordinary people while punishing big risk-takers."],
+          "cons": ["If private rescue fails the problem could spread anyway."]
+        }
+      },
+      {
+        "id": "q1c",
+        "text": "Do nothing — let the bank go bankrupt and follow court rules.",
+        "vector": [-2, -1, 0],
+        "implications": {
+          "pros": ["No taxpayer money used; firms learn to be careful."],
+          "cons": ["Could cause big job losses, panic, and credit problems."]
+        }
+      },
+      {
+        "id": "q1d",
+        "text": "Freeze money leaving the country and take over the bank temporarily.",
+        "vector": [2, 2, -0.5],
+        "implications": {
+          "pros": ["Stops money fleeing and lets you fix the bank properly."],
+          "cons": ["Scares investors and may hurt ties with other countries."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q2",
+    "text": "Factories failing: Local factories are closing because of cheap imports. You:",
+    "answers": [
+      {
+        "id": "q2a",
+        "text": "Put taxes on those imports and give local factories money to keep running.",
+        "vector": [1, 0, 0.5],
+        "implications": {
+          "pros": ["Keeps people employed and buys time for factories to adapt."],
+          "cons": ["Goods may cost more and other countries might retaliate."]
+        }
+      },
+      {
+        "id": "q2b",
+        "text": "Pay for job training and help people move to new jobs; keep trade open.",
+        "vector": [1, -1, -0.5],
+        "implications": {
+          "pros": ["Helps workers learn new skills while avoiding long-term market harm."],
+          "cons": ["Expensive and slow; not everyone will adapt quickly."]
+        }
+      },
+      {
+        "id": "q2c",
+        "text": "Save only truly important firms; otherwise let the market decide.",
+        "vector": [0, 0, 0],
+        "implications": {
+          "pros": ["Focuses help where national interest needs it."],
+          "cons": ["People argue about which firms are 'important'."]
+        }
+      },
+      {
+        "id": "q2d",
+        "text": "Lower taxes and rules to attract foreign factories and buyers.",
+        "vector": [-1, 0, -1],
+        "implications": {
+          "pros": ["Can bring new investment and jobs."],
+          "cons": ["May not help current workers fast enough; community decline."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q3",
+    "text": "Big budget hole: The budget is short. You:",
+    "answers": [
+      {
+        "id": "q3a",
+        "text": "Raise taxes on the richest and keep social programs.",
+        "vector": [2, 0, 0],
+        "implications": {
+          "pros": ["Protects services and helps the poor."],
+          "cons": ["Wealthy may invest less; political fights."]
+        }
+      },
+      {
+        "id": "q3b",
+        "text": "Cut non-essential spending now and borrow a bit.",
+        "vector": [0, 0, 0],
+        "implications": {
+          "pros": ["Quick fix without big fights."],
+          "cons": ["Some useful programs might suffer."]
+        }
+      },
+      {
+        "id": "q3c",
+        "text": "Cut most public programs and try to boost business growth.",
+        "vector": [-2, -1, 0],
+        "implications": {
+          "pros": ["Encourages private growth and long-term efficiency."],
+          "cons": ["People who need help suffer right away."]
+        }
+      },
+      {
+        "id": "q3d",
+        "text": "Make a one-time wealth tax and get a loan from abroad with conditions.",
+        "vector": [1, 0.5, 0.5],
+        "implications": {
+          "pros": ["Raises money quickly; may modernize systems with loan conditions."],
+          "cons": ["Foreign loan rules can be unpopular and seen as interference."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q4",
+    "text": "Machines take jobs: Automation will cut many jobs soon. You:",
+    "answers": [
+      {
+        "id": "q4a",
+        "text": "Pilot a basic income and fund retraining programs.",
+        "vector": [2, -1, 0],
+        "implications": {
+          "pros": ["People have a safety net and can retrain for new work."],
+          "cons": ["Very costly; debate about work incentives."]
+        }
+      },
+      {
+        "id": "q4b",
+        "text": "Give tax breaks to companies that keep or retrain workers.",
+        "vector": [1, 0, 0],
+        "implications": {
+          "pros": ["Encourages firms to keep staff and invest in training."],
+          "cons": ["May keep inefficient firms afloat."]
+        }
+      },
+      {
+        "id": "q4c",
+        "text": "Let the market shift jobs naturally; cut red tape for new industries.",
+        "vector": [-1, -1, 0],
+        "implications": {
+          "pros": ["Faster innovation and new job types."],
+          "cons": ["Big short-term hardship for displaced workers."]
+        }
+      },
+      {
+        "id": "q4d",
+        "text": "Take over big tech firms to control how automation is used.",
+        "vector": [2, 2, 0],
+        "implications": {
+          "pros": ["You can direct tech to serve social goals."],
+          "cons": ["Risk of bad management and less private innovation."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q5",
+    "text": "Rents are exploding: City protests are growing. You:",
+    "answers": [
+      {
+        "id": "q5a",
+        "text": "Cap rent increases and build lots of public housing.",
+        "vector": [2, 1, 0],
+        "implications": {
+          "pros": ["Immediate relief for renters and calmer streets."],
+          "cons": ["Developers may build less; long-term supply issues."]
+        }
+      },
+      {
+        "id": "q5b",
+        "text": "Give tax breaks to private builders who make affordable homes.",
+        "vector": [1, 0, 0],
+        "implications": {
+          "pros": ["Faster building using private money."],
+          "cons": ["May favor profit over real affordability."]
+        }
+      },
+      {
+        "id": "q5c",
+        "text": "Make it easier to build more homes and relax zoning rules.",
+        "vector": [-1, -1, 0],
+        "implications": {
+          "pros": ["More housing supply should lower prices over time."],
+          "cons": ["Short-term disruption and gentrification risks."]
+        }
+      },
+      {
+        "id": "q5d",
+        "text": "Give poor renters direct vouchers to pay rent.",
+        "vector": [1, -0.5, 0],
+        "implications": {
+          "pros": ["Targets help to the worst-off fast."],
+          "cons": ["Needs steady funding and political support."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q6",
+    "text": "After an attack: Terrorists hit the capital. You:",
+    "answers": [
+      {
+        "id": "q6a",
+        "text": "Give security big new powers to watch and detain suspects.",
+        "vector": [0, 2, 1],
+        "implications": {
+          "pros": ["Could stop more attacks quickly."],
+          "cons": ["Hurts privacy and can be abused."]
+        }
+      },
+      {
+        "id": "q6b",
+        "text": "Pass temporary, narrow powers that need court approval.",
+        "vector": [0, 1, 0],
+        "implications": {
+          "pros": ["Balances safety with rights."],
+          "cons": ["Slower response; powers may be extended."]
+        }
+      },
+      {
+        "id": "q6c",
+        "text": "Use community programs and better police-community work.",
+        "vector": [0, -1, -0.5],
+        "implications": {
+          "pros": ["Builds long-term trust and prevention."],
+          "cons": ["Slower to stop immediate threats."]
+        }
+      },
+      {
+        "id": "q6d",
+        "text": "Tighten borders and restrict movement in certain areas temporarily.",
+        "vector": [-0.5, 1.5, 0.5],
+        "implications": {
+          "pros": ["Immediate containment of cross-border risks."],
+          "cons": ["Stigmatizes communities and can strain diplomacy."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q7",
+    "text": "Artist controversy: An artist offends many and crowds protest. You:",
+    "answers": [
+      {
+        "id": "q7a",
+        "text": "Defend the artist's freedom; say the government won't censor art.",
+        "vector": [0, -2, -0.5],
+        "implications": {
+          "pros": ["Protects free speech and creativity."],
+          "cons": ["Upsets some groups and may cause more protests."]
+        }
+      },
+      {
+        "id": "q7b",
+        "text": "Allow only clearly illegal content to be restricted; mostly defend speech.",
+        "vector": [0, -1, 0],
+        "implications": {
+          "pros": ["Limits real harm while keeping debate open."],
+          "cons": ["It can be hard to define what is harmful."]
+        }
+      },
+      {
+        "id": "q7c",
+        "text": "Set rules that public broadcasts must follow national standards.",
+        "vector": [0, 1, 0],
+        "implications": {
+          "pros": ["Calms protests and keeps public order."],
+          "cons": ["Risks soft censorship and less creativity."]
+        }
+      },
+      {
+        "id": "q7d",
+        "text": "Break up protests and arrest instigators to stop unrest.",
+        "vector": [0, 2, 0],
+        "implications": {
+          "pros": ["Restores order fast."],
+          "cons": ["International criticism and chilling effect on dissent."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q8",
+    "text": "Drug trial: A city decriminalized drugs; crime dropped but ER visits rose. You:",
+    "answers": [
+      {
+        "id": "q8a",
+        "text": "Expand decriminalization nationwide and increase health services.",
+        "vector": [0, -2, -0.5],
+        "implications": {
+          "pros": ["Reduces arrests and focuses on health."],
+          "cons": ["More short-term health costs and need for services."]
+        }
+      },
+      {
+        "id": "q8b",
+        "text": "Decriminalize but limit some drugs and boost rehab centers.",
+        "vector": [0, -1, 0],
+        "implications": {
+          "pros": ["Balanced health-first approach."],
+          "cons": ["Needs funding and trained staff."]
+        }
+      },
+      {
+        "id": "q8c",
+        "text": "Go back to stricter rules while testing treatment programs.",
+        "vector": [0, 1, 0.5],
+        "implications": {
+          "pros": ["Addresses public concerns about safety."],
+          "cons": ["More arrests and possible black markets."]
+        }
+      },
+      {
+        "id": "q8d",
+        "text": "Let each city choose its own approach.",
+        "vector": [0, 0, 0],
+        "implications": {
+          "pros": ["Local solutions can match local problems."],
+          "cons": ["Different cities will get different results."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q9",
+    "text": "Refugee wave: 200k people flee across your border. You:",
+    "answers": [
+      {
+        "id": "q9a",
+        "text": "Open borders for now and start programs to find them work.",
+        "vector": [1, -1, -1],
+        "implications": {
+          "pros": ["Big humanitarian help and potential new workers."],
+          "cons": ["Large short-term cost and pressure on services."]
+        }
+      },
+      {
+        "id": "q9b",
+        "text": "Take limited numbers, focus on the most vulnerable and skilled.",
+        "vector": [0, 0, 0],
+        "implications": {
+          "pros": ["Helps those most in need while limiting burden."],
+          "cons": ["Many people will still be left without help."]
+        }
+      },
+      {
+        "id": "q9c",
+        "text": "Put people in guarded camps and process claims slowly.",
+        "vector": [-1, 1, 0],
+        "implications": {
+          "pros": ["Controls flows and reduces hasty integration."],
+          "cons": ["Poor conditions and humanitarian criticism."]
+        }
+      },
+      {
+        "id": "q9d",
+        "text": "Close the border; give aid across the border only.",
+        "vector": [-2, 1, -0.5],
+        "implications": {
+          "pros": ["Protects domestic resources short-term."],
+          "cons": ["Human cost and international backlash."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q10",
+    "text": "School book fight: A new history book skips bad events to boost pride. You:",
+    "answers": [
+      {
+        "id": "q10a",
+        "text": "Reject the book; require balanced history that includes tough parts.",
+        "vector": [0.5, -0.5, 0],
+        "implications": {
+          "pros": ["Teaches truth and critical thinking."],
+          "cons": ["Angers some nationalists and can cause backlash."]
+        }
+      },
+      {
+        "id": "q10b",
+        "text": "Use a modified book that adds context but keeps unity messages.",
+        "vector": [0, 0, 0],
+        "implications": {
+          "pros": ["Middle ground that calms both sides."],
+          "cons": ["Neither side fully happy."]
+        }
+      },
+      {
+        "id": "q10c",
+        "text": "Let local areas pick their own books.",
+        "vector": [-1, -1, 0],
+        "implications": {
+          "pros": ["Local fit and innovation."],
+          "cons": ["Uneven education quality across regions."]
+        }
+      },
+      {
+        "id": "q10d",
+        "text": "Approve the pride-focused book to boost unity now.",
+        "vector": [-0.5, 1, 0],
+        "implications": {
+          "pros": ["Short-term calm and unity."],
+          "cons": ["Hides truth and harms credibility later."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q11",
+    "text": "Neighbor coup: A friendly country is taken over by a junta. You:",
+    "answers": [
+      {
+        "id": "q11a",
+        "text": "Lead a group of countries to sanction the junta.",
+        "vector": [0, 0, 1],
+        "implications": {
+          "pros": ["Pressures the junta without sending troops."],
+          "cons": ["Sanctions can hurt ordinary people."]
+        }
+      },
+      {
+        "id": "q11b",
+        "text": "Help rebels secretly and prepare targeted strikes on leaders.",
+        "vector": [0, 0.5, 2],
+        "implications": {
+          "pros": ["Could remove the junta quickly with less open war."],
+          "cons": ["Dangerous if exposed; moral and legal risks."]
+        }
+      },
+      {
+        "id": "q11c",
+        "text": "Keep trade and deal with the junta to avoid conflict.",
+        "vector": [-1, -1, -1],
+        "implications": {
+          "pros": ["Keeps business going and avoids war."],
+          "cons": ["Looks like accepting a coup; reputational costs."]
+        }
+      },
+      {
+        "id": "q11d",
+        "text": "Send humanitarian aid and push for monitored elections only.",
+        "vector": [0, 0, 0],
+        "implications": {
+          "pros": ["Helps people and keeps diplomatic options open."],
+          "cons": ["May be seen as too weak by some at home."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q12",
+    "text": "Trade fight: A partner undercuts your exporters with cheap subsidy. You:",
+    "answers": [
+      {
+        "id": "q12a",
+        "text": "Take it to the trade body and if needed hit them with tariffs.",
+        "vector": [0, 0, 1],
+        "implications": {
+          "pros": ["Shows you defend local business and use rules."],
+          "cons": ["Could raise prices and start a trade conflict."]
+        }
+      },
+      {
+        "id": "q12b",
+        "text": "Give temporary help to your exporters and try quiet diplomacy.",
+        "vector": [1, 0, 0],
+        "implications": {
+          "pros": ["Shields local firms while fixing the issue quietly."],
+          "cons": ["Costly and may only delay the problem."]
+        }
+      },
+      {
+        "id": "q12c",
+        "text": "Find other markets so you aren't stuck with that partner.",
+        "vector": [-1, 0, -1],
+        "implications": {
+          "pros": ["Long-term safety from one country's pressure."],
+          "cons": ["Slow to build and needs investment."]
+        }
+      },
+      {
+        "id": "q12d",
+        "text": "Negotiate sector by sector and accept small deals for now.",
+        "vector": [0, 0, 0],
+        "implications": {
+          "pros": ["Avoids shock and may get gradual wins."],
+          "cons": ["Might not stop the damage quickly."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q13",
+    "text": "UN peace mission: UN asks you to lead troops to help a failing country. You:",
+    "answers": [
+      {
+        "id": "q13a",
+        "text": "Lead a full mission with troops to protect civilians.",
+        "vector": [0, 0, 2],
+        "implications": {
+          "pros": ["Big chance to stop suffering and raise your country's standing."],
+          "cons": ["Expensive and risky for your soldiers."]
+        }
+      },
+      {
+        "id": "q13b",
+        "text": "Send training and equipment but no combat troops.",
+        "vector": [0, 0, 0.5],
+        "implications": {
+          "pros": ["Helps without big danger to your troops."],
+          "cons": ["Might not be enough to stop the crisis."]
+        }
+      },
+      {
+        "id": "q13c",
+        "text": "Decline and focus on diplomacy and sanctions.",
+        "vector": [0, 0, -1],
+        "implications": {
+          "pros": ["Avoids casualties and big costs."],
+          "cons": ["People may keep suffering and criticize us."]
+        }
+      },
+      {
+        "id": "q13d",
+        "text": "Join only if we get economic or trade benefits in return.",
+        "vector": [0.5, 0, 1],
+        "implications": {
+          "pros": ["Helps your economy while contributing to peace."],
+          "cons": ["Seems self-interested and could hurt legitimacy."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q14",
+    "text": "Cyber attack: Infrastructure is hit and things stop working. You:",
+    "answers": [
+      {
+        "id": "q14a",
+        "text": "Strike back in cyberspace to destroy the attacker's tools.",
+        "vector": [0, 0.5, 2],
+        "implications": {
+          "pros": ["Sends a strong message and may stop more attacks."],
+          "cons": ["Risk of escalation and mistakes."]
+        }
+      },
+      {
+        "id": "q14b",
+        "text": "Publicly blame them, impose sanctions, and fix our systems.",
+        "vector": [0, 0, 1],
+        "implications": {
+          "pros": ["Shows resolve and improves defenses."],
+          "cons": ["Slow response and attackers adapt."]
+        }
+      },
+      {
+        "id": "q14c",
+        "text": "Quietly fix systems and talk privately to the attacker's government.",
+        "vector": [0, -0.5, 0],
+        "implications": {
+          "pros": ["Avoids public panic and open war."],
+          "cons": ["Might not stop future attacks."]
+        }
+      },
+      {
+        "id": "q14d",
+        "text": "Treat it like a crime: investigate and arrest suspects where possible.",
+        "vector": [-0.5, -1, -0.5],
+        "implications": {
+          "pros": ["Uses law and avoids open conflict."],
+          "cons": ["May be insufficient against state-backed attacks."]
+        }
+      }
+    ]
+  },
+  {
+    "id": "q15",
+    "text": "Great power pressure: Big powers want military bases; they offer money and support. You:",
+    "answers": [
+      {
+        "id": "q15a",
+        "text": "Accept a base with clear limits to get security support.",
+        "vector": [-1, 0, 2],
+        "implications": {
+          "pros": ["Immediate security help and military support."],
+          "cons": ["Less independence and possible political backlash."]
+        }
+      },
+      {
+        "id": "q15b",
+        "text": "Refuse bases; instead build local defense pacts with neighbors.",
+        "vector": [0, 0, -1],
+        "implications": {
+          "pros": ["Keeps independence and builds local trust."],
+          "cons": ["Harder to build fast security."]
+        }
+      },
+      {
+        "id": "q15c",
+        "text": "Take aid and investment, but stay militarily non-aligned.",
+        "vector": [0.5, 0, 0],
+        "implications": {
+          "pros": ["Money for development without committing troops."],
+          "cons": ["Could be seen as playing both sides."]
+        }
+      },
+      {
+        "id": "q15d",
+        "text": "Declare neutrality and ban foreign military bases.",
+        "vector": [-1, 0, -2],
+        "implications": {
+          "pros": ["Maximum independence and no foreign bases."],
+          "cons": ["Could be left vulnerable if threats rise."]
+        }
+      }
+    ]
+  }
+]

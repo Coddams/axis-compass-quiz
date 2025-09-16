@@ -4,12 +4,13 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import QuestionCard from "@/components/QuestionCard";
 import ProgressBar from "@/components/ProgressBar";
 import { Button } from "@/components/ui/button";
-import { quizQuestions } from "@/data/quizData";
+import { questions } from "@/data/quizData";
 import { useUser } from "@/contexts/UserContext";
 
 interface UserAnswer {
   economic: number;
   social: number;
+  foreign: number;
 }
 
 const QuizPage = () => {
@@ -17,29 +18,35 @@ const QuizPage = () => {
   const { userName } = useUser();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
-  const [selectedAnswer, setSelectedAnswer] = useState<{ text: string; economic: number; social: number } | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<{
+    id: string;
+    text: string;
+    vector: [number, number, number];
+  } | null>(null);
 
-  const question = quizQuestions[currentQuestion];
-  const isLastQuestion = currentQuestion === quizQuestions.length - 1;
+  const question = questions[currentQuestion];
+  const isLastQuestion = currentQuestion === questions.length - 1;
 
   useEffect(() => {
-    // Reset selected answer when moving to next question
+    // Reset selected answer when moving to a new question
     setSelectedAnswer(null);
   }, [currentQuestion]);
 
-  const handleAnswer = (answer: { text: string; economic: number; social: number }) => {
+  const handleAnswer = (answer: { id: string; text: string; vector: [number, number, number] }) => {
     setSelectedAnswer(answer);
-    
-    // Auto-advance after a short delay
+
     setTimeout(() => {
       const newAnswers = [...answers];
-      newAnswers[currentQuestion] = { economic: answer.economic, social: answer.social };
+      newAnswers[currentQuestion] = {
+        economic: answer.vector[0],
+        social: answer.vector[1],
+        foreign: answer.vector[2],
+      };
       setAnswers(newAnswers);
 
       if (isLastQuestion) {
-        // Store results and navigate to result page
-        sessionStorage.setItem('quizAnswers', JSON.stringify(newAnswers));
-        navigate('/result');
+        sessionStorage.setItem("quizAnswers", JSON.stringify(newAnswers));
+        navigate("/result");
       } else {
         setCurrentQuestion(currentQuestion + 1);
       }
@@ -49,24 +56,30 @@ const QuizPage = () => {
   const goBack = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
-      // Find the corresponding answer from quiz data
       const prevAnswer = answers[currentQuestion - 1];
       if (prevAnswer) {
-        const questionAnswers = quizQuestions[currentQuestion - 1].answers;
-        const matchingAnswer = questionAnswers.find(a => 
-          a.economic === prevAnswer.economic && a.social === prevAnswer.social
+        const questionAnswers = questions[currentQuestion - 1].answers;
+        const matchingAnswer = questionAnswers.find(
+          (a) =>
+            a.vector[0] === prevAnswer.economic &&
+            a.vector[1] === prevAnswer.social &&
+            a.vector[2] === prevAnswer.foreign
         );
         setSelectedAnswer(matchingAnswer || null);
       }
     } else {
-      navigate('/');
+      navigate("/");
     }
   };
 
   const goNext = () => {
     if (selectedAnswer && !isLastQuestion) {
       const newAnswers = [...answers];
-      newAnswers[currentQuestion] = { economic: selectedAnswer.economic, social: selectedAnswer.social };
+      newAnswers[currentQuestion] = {
+        economic: selectedAnswer.vector[0],
+        social: selectedAnswer.vector[1],
+        foreign: selectedAnswer.vector[2],
+      };
       setAnswers(newAnswers);
       setCurrentQuestion(currentQuestion + 1);
     }
@@ -78,9 +91,9 @@ const QuizPage = () => {
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            {userName ? `${userName}'s Political Compass Quiz` : 'Political Compass Quiz'}
+            {userName ? `${userName}'s Political Compass Quiz` : "Political Compass Quiz"}
           </h1>
-          <ProgressBar current={currentQuestion + 1} total={quizQuestions.length} />
+          <ProgressBar current={currentQuestion + 1} total={questions.length} />
         </div>
 
         {/* Question */}
@@ -101,7 +114,7 @@ const QuizPage = () => {
             className="bg-secondary border-border hover:bg-accent"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {currentQuestion === 0 ? 'Home' : 'Previous'}
+            {currentQuestion === 0 ? "Home" : "Previous"}
           </Button>
 
           {selectedAnswer && !isLastQuestion && (
@@ -117,7 +130,7 @@ const QuizPage = () => {
 
         {/* Question Counter */}
         <div className="text-center text-sm text-muted-foreground">
-          {currentQuestion + 1} / {quizQuestions.length}
+          {currentQuestion + 1} / {questions.length}
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ interface TreesCardProps {
 
 const TreesCard: React.FC<TreesCardProps> = ({ title, description, backgroundImage }) => {
   return (
-    <div className="relative flex w-full h-[300px] md:h-[300px]   overflow-hidden border-[4px] transition-all duration-300 ease-in-out border-[#7B2D26] rounded-2xl hover:[&>.overlay]:-translate-x-1/2 hover:[&>.image-content]:w-1/3 hover:[&>.overlay-content]:translate-x-1/2 hover:[&>.overlay-content]:border-none hover:[&>.dots]:translate-x-4 hover:[&>.dots>.dot]:bg-white">
+    <div className="relative flex w-full h-[300px] md:h-[300px]   overflow-hidden border-[4px] transition-all duration-300 ease-in-out border-[#7B2D26] rounded hover:[&>.overlay]:-translate-x-1/2 hover:[&>.image-content]:w-1/3 hover:[&>.overlay-content]:translate-x-1/2 hover:[&>.overlay-content]:border-none hover:[&>.dots]:translate-x-4 hover:[&>.dots>.dot]:bg-white">
       {/* Overlay */}
       <div className="overlay relative z-10 flex h-full w-full bg-[#7B2D26] p-2 transition-all duration-500 ease-in-out">
         <div className="overlay-content z-10 flex h-full w-1/4 flex-col justify-center border-gradient-to-b from-[#aea724] via-green-700 to-[#aea724] p-2 transition-all duration-300 delay-200 animate-slide-left">
