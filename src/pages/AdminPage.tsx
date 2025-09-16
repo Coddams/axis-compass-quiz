@@ -6,22 +6,22 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-import { QuizQuestion } from "@/data/quizData";
+import { CanonQuestion } from "@/data/quizData";
 
 const AdminPage = () => {
   const navigate = useNavigate();
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
-  const [editingQuestion, setEditingQuestion] = useState<QuizQuestion | null>(null);
+  const [questions, setQuestions] = useState<CanonQuestion[]>([]);
+  const [editingQuestion, setEditingQuestion] = useState<CanonQuestion | null>(null);
 
   const handleAddQuestion = () => {
-    const newQuestion: QuizQuestion = {
-      id: Date.now(),
+    const newQuestion: CanonQuestion = {
+      id: Date.now().toString(),
       text: "",
       answers: [
-        { text: "", economic: 0, social: 0 },
-        { text: "", economic: 0, social: 0 },
-        { text: "", economic: 0, social: 0 },
-        { text: "", economic: 0, social: 0 }
+        { id: "1", text: "", vector: [0, 0, 0] },
+        { id: "2", text: "", vector: [0, 0, 0] },
+        { id: "3", text: "", vector: [0, 0, 0] },
+        { id: "4", text: "", vector: [0, 0, 0] }
       ]
     };
     setEditingQuestion(newQuestion);
@@ -43,7 +43,7 @@ const AdminPage = () => {
     });
   };
 
-  const handleDeleteQuestion = (id: number) => {
+  const handleDeleteQuestion = (id: string) => {
     setQuestions(questions.filter(q => q.id !== id));
     toast({
       title: "Question deleted",
@@ -184,7 +184,7 @@ const AdminPage = () => {
                   <div key={idx} className="text-sm bg-muted/30 rounded p-2">
                     <div className="font-medium">{answer.text}</div>
                     <div className="text-xs text-muted-foreground">
-                      Economic: {answer.economic}, Social: {answer.social}
+                      Economic: {answer.vector[0]}, Social: {answer.vector[1]}, Foreign: {answer.vector[2]}
                     </div>
                   </div>
                 ))}
@@ -235,18 +235,20 @@ const AdminPage = () => {
                           />
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-3 gap-3">
                           <div>
-                            <Label htmlFor={`economic-${idx}`}>Economic (-5 to 5)</Label>
+                            <Label htmlFor={`economic-${idx}`}>Economic (-2 to 2)</Label>
                             <Input
                               id={`economic-${idx}`}
                               type="number"
-                              min="-5"
-                              max="5"
-                              value={answer.economic}
+                              min="-2"
+                              max="2"
+                              value={answer.vector[0]}
                               onChange={(e) => {
                                 const newAnswers = [...editingQuestion.answers];
-                                newAnswers[idx] = { ...answer, economic: parseInt(e.target.value) || 0 };
+                                const newVector: [number, number, number] = [...answer.vector];
+                                newVector[0] = parseInt(e.target.value) || 0;
+                                newAnswers[idx] = { ...answer, vector: newVector };
                                 setEditingQuestion({ ...editingQuestion, answers: newAnswers });
                               }}
                               className="mt-1"
@@ -254,16 +256,37 @@ const AdminPage = () => {
                           </div>
                           
                           <div>
-                            <Label htmlFor={`social-${idx}`}>Social (-5 to 5)</Label>
+                            <Label htmlFor={`social-${idx}`}>Social (-2 to 2)</Label>
                             <Input
                               id={`social-${idx}`}
                               type="number"
-                              min="-5"
-                              max="5"
-                              value={answer.social}
+                              min="-2"
+                              max="2"
+                              value={answer.vector[1]}
                               onChange={(e) => {
                                 const newAnswers = [...editingQuestion.answers];
-                                newAnswers[idx] = { ...answer, social: parseInt(e.target.value) || 0 };
+                                const newVector: [number, number, number] = [...answer.vector];
+                                newVector[1] = parseInt(e.target.value) || 0;
+                                newAnswers[idx] = { ...answer, vector: newVector };
+                                setEditingQuestion({ ...editingQuestion, answers: newAnswers });
+                              }}
+                              className="mt-1"
+                            />
+                          </div>
+
+                          <div>
+                            <Label htmlFor={`foreign-${idx}`}>Foreign (-2 to 2)</Label>
+                            <Input
+                              id={`foreign-${idx}`}
+                              type="number"
+                              min="-2"
+                              max="2"
+                              value={answer.vector[2]}
+                              onChange={(e) => {
+                                const newAnswers = [...editingQuestion.answers];
+                                const newVector: [number, number, number] = [...answer.vector];
+                                newVector[2] = parseInt(e.target.value) || 0;
+                                newAnswers[idx] = { ...answer, vector: newVector };
                                 setEditingQuestion({ ...editingQuestion, answers: newAnswers });
                               }}
                               className="mt-1"

@@ -142,6 +142,7 @@ const SharePage = () => {
               <CompassVisualization
                 economic={result.economic}
                 social={result.social}
+                foreign={result.foreign}
                 animated={false}
               />
             </div>

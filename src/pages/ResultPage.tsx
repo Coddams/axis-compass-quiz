@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Share2, RotateCcw, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import CompassVisualization from "@/components/CompassVisualization";
+import ThreeAxisVisualization from "@/components/ThreeAxisVisualization";
 import { calculateResult, QuizResult } from "@/data/quizData";
 
 const ResultPage = () => {
@@ -90,9 +90,9 @@ const quadrant = getQuadrantName(result.economic, result.social, result.foreign)
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Compass Visualization */}
+          {/* Three-Axis Visualization */}
           <div className="space-y-6">
-            <CompassVisualization
+            <ThreeAxisVisualization
               economic={result.economic}
               social={result.social}
               foreign={result.foreign}
