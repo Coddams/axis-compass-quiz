@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 interface ThreeAxisVisualizationProps {
-  economic: number; // -5 to 5
-  social: number;   // -5 to 5
-  foreign: number;  // -5 to 5
+  economic: number; // -2 to 2
+  social: number;   // -2 to 2
+  foreign: number;  // -2 to 2
   animated?: boolean;
 }
 
@@ -32,10 +32,10 @@ const ThreeAxisVisualization = ({
     }
   }, [economic, social, foreign, animated]);
 
-  // Convert coordinates to percentages
-  const econPercent = ((animatedEconomic + 5) / 10) * 100;
-  const socialPercent = ((animatedSocial + 5) / 10) * 100;
-  const foreignPercent = ((animatedForeign + 5) / 10) * 100;
+  // Convert coordinates (-2 to 2 → 0% to 100%)
+  const econPercent = ((animatedEconomic + 2) / 4) * 100;
+  const socialPercent = ((animatedSocial + 2) / 4) * 100;
+  const foreignPercent = ((animatedForeign + 2) / 4) * 100;
 
   // Get axis labels
   const getEconomicLabel = (value: number) => {

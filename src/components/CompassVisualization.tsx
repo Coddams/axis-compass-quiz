@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 interface CompassVisualizationProps {
-  economic: number; // -5 to 5
-  social: number;   // -5 to 5
-  foreign: number;  // -5 to 5 (new axis)
+  economic: number; // -2 to 2
+  social: number;   // -2 to 2
+  foreign: number;  // -2 to 2 (new axis)
   animated?: boolean;
 }
 
@@ -32,10 +32,10 @@ const CompassVisualization = ({
     }
   }, [economic, social, foreign, animated]);
 
-  // Convert coordinates to compass position (-5 to 5 → 0% to 100%)
-  const xPercent = ((animatedEconomic + 5) / 10) * 100;
-  const yPercent = ((-animatedSocial + 5) / 10) * 100; // Invert Y
-  const radius = ((animatedForeign + 5) / 10) * 40 + 10; 
+  // Convert coordinates to compass position (-2 to 2 → 0% to 100%)
+  const xPercent = ((animatedEconomic + 2) / 4) * 100;
+  const yPercent = ((-animatedSocial + 2) / 4) * 100; // Invert Y
+  const radius = ((animatedForeign + 2) / 4) * 40 + 10; 
   // → makes foreign policy show as a halo size (10px – 50px)
 
   return (
