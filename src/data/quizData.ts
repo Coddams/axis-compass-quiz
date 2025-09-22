@@ -29,49 +29,60 @@ export type CanonFigure = {
   axis_alignment: { economic: number; social: number; foreign: number }; // -2..2
   explain?: string;
   uncertainty?: number;
+  controversial?: boolean; // optional safeguard
 };
+
+export type CanonIdeology = {
+  id: string;
+  name: string;
+  range: {
+    economic: number[]; // looser typing
+    social: number[];
+    foreign: number[];
+  };
+  description: string;
+};
+
 
 // Canonical data, exported directly
 export const questions = questionsRaw as CanonQuestion[];
 export const figures = figuresRaw as CanonFigure[];
-export const ideologies = ideologiesRaw;
+export const ideologies = ideologiesRaw as CanonIdeology[];
 export const axes = axesRaw;
 
 /**
- * Map a canonical user vector (3-axis) to an ideology.
- * Returns the first ideology that matches, or null if none.
+ * Find closest ideology by centroid scoring
  */
 export function findIdeologyForVector(userVector: {
   economic: number;
   social: number;
   foreign: number;
-}) {
-  for (const ide of ideologiesRaw as any[]) {
-    const re = ide.range;
-    const econOk =
-      userVector.economic >= re.economic[0] &&
-      userVector.economic <= re.economic[1];
-    const socOk =
-      userVector.social >= re.social[0] &&
-      userVector.social <= re.social[1];
-    const forOk =
-      userVector.foreign >= re.foreign[0] &&
-      userVector.foreign <= re.foreign[1];
+}): CanonIdeology | null {
+  if (!ideologies.length) return null;
 
-    if (econOk && socOk && forOk) {
-      return ide;
-    }
-  }
-  return null;
+  const scored = ideologies.map((ide) => {
+    const centroid = {
+      economic: (ide.range.economic[0] + ide.range.economic[1]) / 2,
+      social: (ide.range.social[0] + ide.range.social[1]) / 2,
+      foreign: (ide.range.foreign[0] + ide.range.foreign[1]) / 2,
+    };
+    const dx = userVector.economic - centroid.economic;
+    const dy = userVector.social - centroid.social;
+    const dz = userVector.foreign - centroid.foreign;
+    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    return { ideology: ide, distance };
+  });
+
+  // Pick the closest ideology
+  return scored.sort((a, b) => a.distance - b.distance)[0].ideology;
 }
-
 
 // Result type
 export type QuizResult = {
   economic: number;
   social: number;
   foreign: number;
-  ideology: any | null;
+  ideology: CanonIdeology | null;
   topMatches: {
     figure: CanonFigure;
     similarity: number;
@@ -84,25 +95,58 @@ export type QuizResult = {
 export function calculateResult(
   answers: { economic: number; social: number; foreign: number }[]
 ): QuizResult {
-  let econ = 0, soc = 0, forn = 0;
-  let count = 0;
+  let econ = 0,
+    soc = 0,
+    forn = 0;
 
-  // Loop through the stored vectors directly
-  for (const a of answers) {
-    econ += a.economic;
-    soc += a.social;
-    forn += a.foreign;
-    count++;
+  const total = answers.length;
+
+  // If we have a clean 3-axis split (e.g. 15 answers => 5 per axis), compute per-axis averages
+  if (total > 0 && total % 3 === 0) {
+    const perAxis = total / 3;
+
+    // economic: use only the first block, average the economic components
+    let econSum = 0;
+    for (let i = 0; i < perAxis; i++) {
+      econSum += answers[i].economic;
+    }
+    econ = econSum / perAxis;
+
+    // social: use only the second block, average the social components
+    let socSum = 0;
+    for (let i = perAxis; i < perAxis * 2; i++) {
+      socSum += answers[i].social;
+    }
+    soc = socSum / perAxis;
+
+    // foreign/political: use only the third block, average the foreign components
+    let fornSum = 0;
+    for (let i = perAxis * 2; i < perAxis * 3; i++) {
+      fornSum += answers[i].foreign;
+    }
+    forn = fornSum / perAxis;
+  } else {
+    // Legacy fallback: average across all answers for each axis
+    let econSum = 0,
+      socSum = 0,
+      fornSum = 0;
+    let count = 0;
+
+    for (const a of answers) {
+      econSum += a.economic;
+      socSum += a.social;
+      fornSum += a.foreign;
+      count++;
+    }
+
+    if (count > 0) {
+      econ = econSum / count;
+      soc = socSum / count;
+      forn = fornSum / count;
+    }
   }
 
-  // Average them
-  if (count > 0) {
-    econ /= count;
-    soc /= count;
-    forn /= count;
-  }
-
-  // Match ideology
+  // Match ideology (scored by closest centroid)
   const ideology = findIdeologyForVector({
     economic: econ,
     social: soc,
@@ -118,7 +162,11 @@ export function calculateResult(
       const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
       const maxDistance = Math.sqrt(3 * 4); // worst case (-2 to +2 per axis)
       const similarity = Math.max(0, 100 * (1 - distance / maxDistance));
-      return { figure: f, similarity };
+
+      // optional weighting by uncertainty
+      const weightedSimilarity = similarity * (1 - (f.uncertainty ?? 0));
+
+      return { figure: f, similarity: weightedSimilarity };
     })
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, 3);

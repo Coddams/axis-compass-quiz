@@ -70,11 +70,11 @@ const quadrant = getQuadrantName(result.economic, result.social, result.foreign)
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">
             Your Political Compass
           </h1>
-          <p className="text-xl text-muted-foreground">
+          {/* <p className="text-xl text-muted-foreground">
             You align with the{" "}
             <span className="text-primary font-semibold">{quadrant}</span>{" "}
             quadrant
-          </p>
+          </p> */}
 
           {/* Ideology */}
           {result.ideology && (
@@ -125,9 +125,6 @@ const quadrant = getQuadrantName(result.economic, result.social, result.foreign)
                       <h3 className="font-semibold text-lg">
                         #{index + 1} {match.figure.name}
                       </h3>
-                      <span className="text-primary font-bold text-lg">
-                        {Math.round(match.similarity)}%
-                      </span>
                     </div>
                     <p className="text-muted-foreground text-sm mb-2">
                       {match.figure.explain || match.figure.quote}

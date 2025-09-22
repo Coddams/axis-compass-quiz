@@ -5,7 +5,7 @@
     "era": "20th Century",
     "country": "South Africa",
     "quote": "Overcoming poverty is not a gesture of charity, it is an act of justice.",
-    "axis_alignment": { "economic": -0.8, "social": -0.3, "foreign": 0.7 },
+    "axis_alignment": { "economic": -0.8, "social": 0.3, "foreign": 0.7 },
     "explain": "You were aligned with Nelson Mandela because from your answers, you favored strong public spending to reduce inequality and believed that government should step in to level the playing field. Your support for fairness and inclusivity placed you close to Mandela’s fight for social justice.",
     "uncertainty": 0.5
   },
@@ -15,7 +15,7 @@
     "era": "20th Century",
     "country": "United Kingdom",
     "quote": "There is no such thing as society: there are individual men and women, and there are families.",
-    "axis_alignment": { "economic": 0.8, "social": 0.4, "foreign": -0.5 },
+    "axis_alignment": { "economic": 1.5, "social": -0.8, "foreign": 0.6 },
     "explain": "You were aligned with Margaret Thatcher because your answers leaned toward personal responsibility, smaller government, and faith in free markets. You valued self-reliance over collective solutions.",
     "uncertainty": 0.5
   },
@@ -25,9 +25,9 @@
     "era": "20th Century",
     "country": "India",
     "quote": "You must be the change you wish to see in the world.",
-    "axis_alignment": { "economic": -0.2, "social": -0.7, "foreign": -1.0 },
+    "axis_alignment": { "economic": -0.9, "social": 0.9, "foreign": -0.6 },
     "explain": "You were aligned with Mahatma Gandhi because you valued nonviolent solutions, moral persuasion over state force, and progress through community ethics.",
-    "uncertainty": 0.5
+    "uncertainty": 0.6
   },
   {
     "id": "jefferson",
@@ -35,7 +35,7 @@
     "era": "18th Century",
     "country": "United States",
     "quote": "I prefer dangerous freedom over peaceful slavery.",
-    "axis_alignment": { "economic": 0.3, "social": -0.6, "foreign": 0.4 },
+    "axis_alignment": { "economic": 0.5, "social": 0.7, "foreign": 0.2 },
     "explain": "You were aligned with Thomas Jefferson because your answers suggested that freedom and individual rights mattered more to you than strong state control.",
     "uncertainty": 0.5
   },
@@ -45,9 +45,10 @@
     "era": "20th Century",
     "country": "Soviet Union",
     "quote": "Ideas are more powerful than guns. We would not let our enemies have guns; why should we let them have ideas?",
-    "axis_alignment": { "economic": -0.9, "social": 0.9, "foreign": -0.3 },
-    "explain": "You were aligned with Joseph Stalin because your answers showed support for heavy state control over both the economy and society.",
-    "uncertainty": 0.5
+    "axis_alignment": { "economic": -1.9, "social": -1.95, "foreign": 0.4 },
+    "explain": "You were aligned with Joseph Stalin because your answers showed support for heavy state control over the economy and society.",
+    "uncertainty": 0.2,
+    "controversial": true
   },
   {
     "id": "smith",
@@ -55,9 +56,9 @@
     "era": "18th Century",
     "country": "Scotland",
     "quote": "It is not from the benevolence of the butcher, the brewer, or the baker that we expect our dinner, but from their regard to their own interest.",
-    "axis_alignment": { "economic": 0.9, "social": -0.2, "foreign": -0.5 },
+    "axis_alignment": { "economic": 1.5, "social": 0.5, "foreign": 0.0 },
     "explain": "You were aligned with Adam Smith because your answers showed trust in free markets and competition to drive prosperity.",
-    "uncertainty": 0.5
+    "uncertainty": 0.4
   },
   {
     "id": "marx",
@@ -65,9 +66,9 @@
     "era": "19th Century",
     "country": "Germany",
     "quote": "The history of all hitherto existing society is the history of class struggles.",
-    "axis_alignment": { "economic": -0.95, "social": 0.4, "foreign": 0.5 },
+    "axis_alignment": { "economic": -2.0, "social": 0.0, "foreign": 0.5 },
     "explain": "You were aligned with Karl Marx because your answers emphasized reducing wealth gaps and prioritizing workers over private owners.",
-    "uncertainty": 0.5
+    "uncertainty": 0.6
   },
   {
     "id": "fdr",
@@ -75,7 +76,7 @@
     "era": "20th Century",
     "country": "United States",
     "quote": "The test of our progress is not whether we add more to the abundance of those who have much; it is whether we provide enough for those who have little.",
-    "axis_alignment": { "economic": -0.6, "social": 0.2, "foreign": 0.6 },
+    "axis_alignment": { "economic": -0.8, "social": 0.3, "foreign": 0.6 },
     "explain": "You were aligned with FDR because you supported government safety nets, public spending, and programs to help the vulnerable.",
     "uncertainty": 0.5
   },
@@ -85,7 +86,7 @@
     "era": "20th Century",
     "country": "United States",
     "quote": "The nine most terrifying words in the English language are: I’m from the government and I’m here to help.",
-    "axis_alignment": { "economic": 0.7, "social": 0.3, "foreign": -0.6 },
+    "axis_alignment": { "economic": 1.2, "social": -0.5, "foreign": 0.7 },
     "explain": "You were aligned with Ronald Reagan because your answers showed preference for lower taxes, smaller government, and a traditional outlook.",
     "uncertainty": 0.5
   },
@@ -95,7 +96,7 @@
     "era": "20th Century",
     "country": "United Kingdom",
     "quote": "Democracy is the worst form of government, except for all those other forms that have been tried.",
-    "axis_alignment": { "economic": 0.2, "social": 0.6, "foreign": 1.5 },
+    "axis_alignment": { "economic": 0.2, "social": -0.6, "foreign": 1.5 },
     "explain": "You were aligned with Winston Churchill because your answers valued order, duty, and stability in times of crisis.",
     "uncertainty": 0.5
   },
@@ -105,7 +106,7 @@
     "era": "20th Century",
     "country": "United States",
     "quote": "Injustice anywhere is a threat to justice everywhere.",
-    "axis_alignment": { "economic": -0.4, "social": -0.5, "foreign": 0.8 },
+    "axis_alignment": { "economic": -0.4, "social": 0.7, "foreign": 0.6 },
     "explain": "You were aligned with Martin Luther King Jr. because your answers emphasized equality, inclusivity, and progress.",
     "uncertainty": 0.5
   },
@@ -115,9 +116,10 @@
     "era": "20th Century",
     "country": "Argentina / Cuba",
     "quote": "The revolution is not an apple that falls when it is ripe. You have to make it fall.",
-    "axis_alignment": { "economic": -0.85, "social": 0.5, "foreign": 0.4 },
+    "axis_alignment": { "economic": -0.85, "social": -1.0, "foreign": 0.7 },
     "explain": "You were aligned with Che Guevara because your answers showed a willingness to challenge inequality through radical means.",
-    "uncertainty": 0.5
+    "uncertainty": 0.4,
+    "controversial": true
   },
   {
     "id": "confucius",
@@ -125,9 +127,9 @@
     "era": "5th Century BCE",
     "country": "China",
     "quote": "The strength of a nation derives from the integrity of the home.",
-    "axis_alignment": { "economic": 0.1, "social": 0.7, "foreign": -0.8 },
+    "axis_alignment": { "economic": 0.1, "social": -1.5, "foreign": -0.8 },
     "explain": "You were aligned with Confucius because your answers highlighted respect for tradition, family, and social order.",
-    "uncertainty": 0.5
+    "uncertainty": 0.6
   },
   {
     "id": "locke",
@@ -135,9 +137,9 @@
     "era": "17th Century",
     "country": "England",
     "quote": "Where there is no law, there is no freedom.",
-    "axis_alignment": { "economic": 0.4, "social": -0.5, "foreign": 0.5 },
+    "axis_alignment": { "economic": 0.4, "social": 0.6, "foreign": 0.2 },
     "explain": "You were aligned with John Locke because your answers valued individual rights, property, and government by consent.",
-    "uncertainty": 0.5
+    "uncertainty": 0.4
   },
   {
     "id": "hitler",
@@ -145,9 +147,10 @@
     "era": "20th Century",
     "country": "Germany",
     "quote": "He alone, who owns the youth, gains the future.",
-    "axis_alignment": { "economic": 0.3, "social": 0.95, "foreign": -0.9 },
+    "axis_alignment": { "economic": 0.3, "social": -2.0, "foreign": 2.0 },
     "explain": "You were aligned with Adolf Hitler because your answers leaned heavily toward centralized authority, extreme nationalism, and rigid traditionalism.",
-    "uncertainty": 0.5
+    "uncertainty": 0.1,
+    "controversial": true
   },
   {
     "id": "kennedy",
@@ -165,9 +168,9 @@
     "era": "21st Century",
     "country": "Germany",
     "quote": "We will manage this.",
-    "axis_alignment": { "economic": 0.1, "social": 0.4, "foreign": 0.3 },
+    "axis_alignment": { "economic": 0.1, "social": 0.2, "foreign": 0.3 },
     "explain": "You were aligned with Angela Merkel because your answers favored moderation, compromise, and steady leadership.",
-    "uncertainty": 0.5
+    "uncertainty": 0.4
   },
   {
     "id": "malcolm",
@@ -175,7 +178,7 @@
     "era": "20th Century",
     "country": "United States",
     "quote": "You can’t separate peace from freedom because no one can be at peace unless he has his freedom.",
-    "axis_alignment": { "economic": -0.3, "social": -0.4, "foreign": 0.7 },
+    "axis_alignment": { "economic": -0.3, "social": 0.6, "foreign": 0.6 },
     "explain": "You were aligned with Malcolm X because your answers reflected a strong demand for justice, dignity, and self-reliance.",
     "uncertainty": 0.5
   },
@@ -185,8 +188,162 @@
     "era": "21st Century",
     "country": "United States",
     "quote": "If we aren’t willing to pay a price for our values, then we should ask ourselves whether we truly believe in them at all.",
-    "axis_alignment": { "economic": -0.4, "social": -0.2, "foreign": 0.8 },
+    "axis_alignment": { "economic": -0.4, "social": 0.2, "foreign": 0.8 },
     "explain": "You were aligned with Barack Obama because your answers supported progressive values, inclusivity, and fairness, while still valuing personal freedoms.",
     "uncertainty": 0.5
+  },
+  {
+    "id": "milton_friedman",
+    "name": "Milton Friedman",
+    "era": "20th Century",
+    "country": "United States",
+    "quote": "Inflation is always and everywhere a monetary phenomenon.",
+    "axis_alignment": { "economic": 2.0, "social": 1.5, "foreign": 0.0 },
+    "explain": "Friedman strongly favored free markets and limited government; socially tolerant compared with his economic views; not primarily defined by foreign interventionism.",
+    "uncertainty": 0.4
+  },
+  {
+    "id": "ayn_rand",
+    "name": "Ayn Rand",
+    "era": "20th Century",
+    "country": "United States / Russia",
+    "quote": "The question isn't who is going to let me; it's who is going to stop me.",
+    "axis_alignment": { "economic": 1.8, "social": 1.8, "foreign": 0.0 },
+    "explain": "Objectivist champion of laissez-faire capitalism and radical individual liberty; a polarizing figure—use `controversial: true` if needed.",
+    "uncertainty": 0.6,
+    "controversial": true
+  },
+  {
+    "id": "emma_goldman",
+    "name": "Emma Goldman",
+    "era": "20th Century",
+    "country": "United States / Lithuania",
+    "quote": "If I can't dance, I don't want to be part of your revolution.",
+    "axis_alignment": { "economic": -1.8, "social": 2.0, "foreign": -0.3 },
+    "explain": "Anarchist and radical activist: strongly anti-state economically, fiercely pro-personal freedom socially, skeptical of state-driven foreign policy.",
+    "uncertainty": 0.5
+  },
+  {
+    "id": "mikhail_bakunin",
+    "name": "Mikhail Bakunin",
+    "era": "19th Century",
+    "country": "Russia",
+    "quote": "The urge to destroy is also a creative urge.",
+    "axis_alignment": { "economic": -2.0, "social": 1.5, "foreign": -0.5 },
+    "explain": "Classical anarchist: extreme anti-statist economics with a strong libertarian social bent and general opposition to imperial intervention.",
+    "uncertainty": 0.6
+  },
+  {
+    "id": "benito_mussolini",
+    "name": "Benito Mussolini",
+    "era": "20th Century",
+    "country": "Italy",
+    "quote": "Everything in the State, nothing outside the State, nothing against the State.",
+    "axis_alignment": { "economic": 0.2, "social": -2.0, "foreign": 1.0 },
+    "explain": "Authoritarian, nationalistic leader favoring strong social control and an interventionist posture; economy was corporatist/state-directed rather than pure free market.",
+    "uncertainty": 0.6,
+    "controversial": true
+  },
+  {
+    "id": "juan_peron",
+    "name": "Juan Perón",
+    "era": "20th Century",
+    "country": "Argentina",
+    "quote": "The people are what matter, not the leaders.",
+    "axis_alignment": { "economic": 0.0, "social": -0.8, "foreign": 0.5 },
+    "explain": "Populist/corporatist blend: mixed economic policies with protectionism, socially conservative and nationalistic tendencies.",
+    "uncertainty": 0.5
+  },
+  {
+    "id": "populist_archetype",
+    "name": "Populist Archetype",
+    "era": "archetype",
+    "country": "n/a",
+    "quote": "Put ordinary people first — against distant elites.",
+    "axis_alignment": { "economic": 0.2, "social": -1.0, "foreign": 0.8 },
+    "explain": "Synthetic archetype designed to represent modern populist mixes (nationalist, protectionist, strong leadership). Not tied to a single historical figure.",
+    "uncertainty": 0.3,
+    "controversial": false
+  },
+  {
+    "id": "george_washington",
+    "name": "George Washington",
+    "era": "18th Century",
+    "country": "United States",
+    "quote": "It is our true policy to steer clear of permanent alliances with any portion of the foreign world.",
+    "axis_alignment": { "economic": 0.0, "social": 0.2, "foreign": -1.8 },
+    "explain": "Cautious internationalist in practice—warned against entangling alliances, favored pragmatic neutrality in foreign affairs.",
+    "uncertainty": 0.5
+  },
+  {
+    "id": "charles_de_gaulle",
+    "name": "Charles de Gaulle",
+    "era": "20th Century",
+    "country": "France",
+    "quote": "France cannot be France without greatness.",
+    "axis_alignment": { "economic": 0.2, "social": 0.0, "foreign": -0.9 },
+    "explain": "Independent-minded leader skeptical of foreign dominance; favored a strong state and cautious foreign posture centered on national sovereignty.",
+    "uncertainty": 0.5
+  },
+  {
+    "id": "noam_chomsky",
+    "name": "Noam Chomsky",
+    "era": "20th / 21st Century",
+    "country": "United States",
+    "quote": "If we don't believe in freedom of expression for people we despise, we don't believe in it at all.",
+    "axis_alignment": { "economic": -1.5, "social": 1.5, "foreign": -0.5 },
+    "explain": "Critic of concentrated economic power and imperial foreign policy; combines left-leaning economic views with strong civil liberties.",
+    "uncertainty": 0.5
+  },
+  {
+    "id": "eugene_debs",
+    "name": "Eugene V. Debs",
+    "era": "19th / 20th Century",
+    "country": "United States",
+    "quote": "While there is a lower class, I am in it; while there is a criminal element, I am of it.",
+    "axis_alignment": { "economic": -1.2, "social": 0.4, "foreign": 0.0 },
+    "explain": "Early American socialist and labor leader: pro-union, pro-redistribution, and democratic in social aims.",
+    "uncertainty": 0.5
+  },
+  {
+    "id": "bernie_sanders",
+    "name": "Bernie Sanders",
+    "era": "21st Century",
+    "country": "United States",
+    "quote": "A political revolution is coming.",
+    "axis_alignment": { "economic": -1.2, "social": 0.5, "foreign": 0.0 },
+    "explain": "Modern democratic-socialist politician advocating strong welfare, progressive taxation, and civil liberties; included as a contemporary anchor.",
+    "uncertainty": 0.5
+  },
+  {
+    "id": "jawaharlal_nehru",
+    "name": "Jawaharlal Nehru",
+    "era": "20th Century",
+    "country": "India",
+    "quote": "A moment comes, which comes but rarely in history, when we step out from the old to the new.",
+    "axis_alignment": { "economic": -0.3, "social": 0.0, "foreign": 0.8 },
+    "explain": "Post-colonial leader favoring mixed-economy development and active non-aligned international engagement.",
+    "uncertainty": 0.5
+  },
+  {
+    "id": "kwame_nkrumah",
+    "name": "Kwame Nkrumah",
+    "era": "20th Century",
+    "country": "Ghana",
+    "quote": "We face neither East nor West; we face forward.",
+    "axis_alignment": { "economic": -0.8, "social": 0.1, "foreign": 0.8 },
+    "explain": "Pan-Africanist and development-oriented leader favoring state-led development and an engaged international stance for newly independent nations.",
+    "uncertainty": 0.5
+  },
+  {
+    "id": "mao_zedong",
+    "name": "Mao Zedong",
+    "era": "20th Century",
+    "country": "China",
+    "quote": "Political power grows out of the barrel of a gun.",
+    "axis_alignment": { "economic": -1.8, "social": -0.7, "foreign": -0.2 },
+    "explain": "Revolutionary communist leader who implemented radical state-led economic change and centralized political control; included as a controversial but important anchor.",
+    "uncertainty": 0.6,
+    "controversial": true
   }
 ]
