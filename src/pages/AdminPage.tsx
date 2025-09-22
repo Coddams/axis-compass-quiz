@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, Download, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Download, Upload, BarChart3, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { CanonQuestion } from "@/data/quizData";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 
 const AdminPage = () => {
   const navigate = useNavigate();
@@ -94,7 +96,7 @@ const AdminPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero px-4 py-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <Button
@@ -107,7 +109,7 @@ const AdminPage = () => {
           </Button>
           
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            Quiz Admin Panel
+            Admin Dashboard
           </h1>
           
           <div className="flex space-x-2">
@@ -141,7 +143,24 @@ const AdminPage = () => {
           </div>
         </div>
 
-        {/* Add Question Button */}
+        {/* Main Tabs */}
+        <Tabs defaultValue="analytics" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              User Analytics
+            </TabsTrigger>
+            <TabsTrigger value="questions" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              Question Management
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <AnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="questions" className="space-y-6">{/* Add Question Button */}
         <div className="text-center">
           <Button onClick={handleAddQuestion} className="btn-hero">
             <Plus className="w-5 h-5 mr-2" />
@@ -324,6 +343,8 @@ const AdminPage = () => {
             </p>
           </div>
         )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

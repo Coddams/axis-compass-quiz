@@ -6,6 +6,7 @@ import ProgressBar from "@/components/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { questions } from "@/data/quizData";
 import { useUser } from "@/contexts/UserContext";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface UserAnswer {
   economic: number;
@@ -16,6 +17,7 @@ interface UserAnswer {
 const QuizPage = () => {
   const navigate = useNavigate();
   const { userName } = useUser();
+  const { initializeSession, trackQuestionAnswer, trackPageView } = useAnalytics();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<{
@@ -23,17 +25,36 @@ const QuizPage = () => {
     text: string;
     vector: [number, number, number];
   } | null>(null);
+  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
 
   const question = questions[currentQuestion];
   const isLastQuestion = currentQuestion === questions.length - 1;
 
   useEffect(() => {
-    // Reset selected answer when moving to a new question
+    // Initialize user session when quiz starts
+    if (userName) {
+      initializeSession(userName);
+    }
+    trackPageView('quiz');
+  }, [userName, initializeSession, trackPageView]);
+
+  useEffect(() => {
+    // Reset selected answer and track time when moving to a new question
     setSelectedAnswer(null);
+    setQuestionStartTime(Date.now());
   }, [currentQuestion]);
 
   const handleAnswer = (answer: { id: string; text: string; vector: [number, number, number] }) => {
     setSelectedAnswer(answer);
+
+    // Track question analytics
+    const timeSpentOnQuestion = Math.floor((Date.now() - questionStartTime) / 1000);
+    trackQuestionAnswer(
+      question,
+      currentQuestion,
+      answer,
+      timeSpentOnQuestion
+    );
 
     setTimeout(() => {
       const newAnswers = [...answers];
