@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Share2, RotateCcw, ArrowRight } from "lucide-react";
+import { Share2, RotateCcw, ArrowRight, Star, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import ThreeAxisVisualization from "@/components/ThreeAxisVisualization";
 import { calculateResult, QuizResult } from "@/data/quizData";
 
 const ResultPage = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [result, setResult] = useState<QuizResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [feedback, setFeedback] = useState("");
+  const [rating, setRating] = useState(0);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
   useEffect(() => {
     const answersJson = sessionStorage.getItem("quizAnswers");
@@ -61,6 +68,35 @@ const ResultPage = () => {
 
 
 const quadrant = getQuadrantName(result.economic, result.social, result.foreign);
+
+  const handleFeedbackSubmit = async () => {
+    if (!feedback.trim() && rating === 0) {
+      toast({
+        title: "Please provide feedback",
+        description: "Either write a comment or select a rating before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Here you would typically send the feedback to your backend
+      // For now, we'll just simulate a successful submission
+      console.log("Feedback submitted:", { feedback, rating, result });
+      
+      setFeedbackSubmitted(true);
+      toast({
+        title: "Thank you for your feedback!",
+        description: "Your input helps us improve the Political Compass experience.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error submitting feedback",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-hero px-4 py-8">
@@ -167,6 +203,86 @@ const quadrant = getQuadrantName(result.economic, result.social, result.foreign)
           <p className="text-sm text-muted-foreground">
             Share your compass to see how friends and family compare
           </p>
+        </div>
+
+        {/* Feedback Section */}
+        <div className="max-w-2xl mx-auto">
+          <Card className="result-card">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-2 text-xl">
+                <MessageSquare className="w-5 h-5" />
+                How was your experience?
+              </CardTitle>
+              <CardDescription>
+                Help us improve the Political Compass by sharing your feedback
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {!feedbackSubmitted ? (
+                <>
+                  {/* Rating */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-card-foreground">
+                      Rate your experience (optional)
+                    </label>
+                    <div className="flex gap-1 justify-center">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => setRating(rating === star ? 0 : star)}
+                          className="p-1 hover:scale-110 transition-transform"
+                        >
+                          <Star
+                            className={`w-8 h-8 ${
+                              star <= rating
+                                ? "fill-primary text-primary"
+                                : "text-muted-foreground hover:text-primary"
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Feedback Text */}
+                  <div className="space-y-2">
+                    <label htmlFor="feedback" className="text-sm font-medium text-card-foreground">
+                      Share your thoughts (optional)
+                    </label>
+                    <Textarea
+                      id="feedback"
+                      placeholder="Tell us about your experience with the quiz, the results, or any suggestions you have..."
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      className="min-h-[100px] resize-none"
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <Button
+                    onClick={handleFeedbackSubmit}
+                    className="w-full bg-primary hover:bg-primary-glow"
+                  >
+                    Submit Feedback
+                  </Button>
+                </>
+              ) : (
+                <div className="text-center py-8 space-y-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                    <MessageSquare className="w-8 h-8 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-card-foreground">
+                      Thank you for your feedback!
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Your input helps us improve the Political Compass experience.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
