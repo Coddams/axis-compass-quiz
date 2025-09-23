@@ -158,7 +158,7 @@ const quadrant = getQuadrantName(result.economic, result.social, result.foreign)
 
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-lg">
+                      <h3 className="font-semibold text-lg text-primary">
                         #{index + 1} {match.figure.name}
                       </h3>
                     </div>
