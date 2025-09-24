@@ -18,6 +18,24 @@ export interface UserAnalytics {
     browser: string;
     os: string;
   };
+  quizResult?: {
+  finalVector: {
+    economic: number;
+    social: number;
+    foreign: number;
+  };
+  matchedIdeology: {
+    id: string;
+    name: string;
+    description: string;
+    confidence: number;
+  };
+  topFigureMatches: any[];
+  completionTime: number;
+  timestamp: Date;
+  shareAttempted: boolean;
+};
+
 }
 
 export interface QuestionAnalytics {

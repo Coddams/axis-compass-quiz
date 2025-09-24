@@ -239,51 +239,59 @@ export const useAnalytics = () => {
   }, [userId, sessionId]);
 
   // Track quiz completion
-  const trackQuizCompletion = useCallback(async (
-    finalResult: any,
-    totalCompletionTime: number,
-    shareAttempted: boolean = false
-  ) => {
-    const resultAnalytics: QuizResultAnalytics = {
-      userId,
-      sessionId,
-      finalVector: finalResult.vector,
-      matchedIdeology: {
-        id: finalResult.ideology?.id || '',
-        name: finalResult.ideology?.name || '',
-        description: finalResult.ideology?.description || '',
-        confidence: finalResult.confidence || 0.8
-      },
-      topFigureMatches: finalResult.topFigures || [],
-      completionTime: totalCompletionTime,
-      timestamp: new Date(),
-      shareAttempted
-    };
+// Replace your existing trackQuizCompletion with this version
+const trackQuizCompletion = useCallback(async (
+  finalResult: any,
+  totalCompletionTime: number,
+  shareAttempted: boolean = false
+) => {
+  const resultAnalytics: QuizResultAnalytics = {
+    userId,
+    sessionId,
+    finalVector: finalResult.vector,
+    matchedIdeology: {
+      id: finalResult.ideology?.id || '',
+      name: finalResult.ideology?.name || '',
+      description: finalResult.ideology?.description || '',
+      confidence: finalResult.confidence || 0.8
+    },
+    topFigureMatches: finalResult.topFigures || [],
+    completionTime: totalCompletionTime,
+    timestamp: new Date(),
+    shareAttempted
+  };
 
-    // Update session as completed locally and persist
-    setCurrentSession(prev => {
-      const next: UserAnalytics = {
-        ...(prev || ({} as UserAnalytics)),
+  // Update session locally
+setCurrentSession(prev => {
+  const next: UserAnalytics = {
+    ...(prev || ({} as UserAnalytics)),
+    completed: true,
+    endTime: new Date(),
+    timeSpent: totalCompletionTime,
+    quizResult: resultAnalytics
+  };
+
+  (async () => {
+    try {
+      await apiUpdateSession(sessionId, {
         completed: true,
         endTime: new Date(),
         timeSpent: totalCompletionTime,
-        quizResult: resultAnalytics as any
-      } as UserAnalytics;
+        quizResult: resultAnalytics
+      });
+    } catch (err) {
+      console.warn('trackQuizCompletion: failed to persist completion to backend.', err);
+    }
+  })();
 
-      (async () => {
-        try {
-          await apiPostSession(next);
-        } catch (err) {
-          console.warn('trackQuizCompletion: failed to persist completion to backend.', err);
-        }
-      })();
+  return next;
+});
 
-      return next;
-    });
 
-    console.log('📊 Quiz completed:', resultAnalytics);
-    return resultAnalytics;
-  }, [userId, sessionId]);
+  console.log('📊 Quiz completed:', resultAnalytics);
+  return resultAnalytics;
+}, [userId, sessionId]);
+
 
   // Track user feedback
   const trackFeedback = useCallback(async (rating: number, comment?: string) => {

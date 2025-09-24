@@ -21,11 +21,18 @@ router.post('/session', async (req, res) => {
     payload.userAgent = req.get('User-Agent') || payload.userAgent || 'unknown';
     payload.referrer = payload.referrer || req.get('Referer') || undefined;
 
-    const doc = await UserAnalytics.findOneAndUpdate(
-      { sessionId: payload.sessionId },
-      { $set: payload },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
+    const updateData = { ...payload };
+
+// ✅ Ensure quizResult is saved if included
+if (payload.quizResult) {
+  updateData.quizResult = payload.quizResult;
+}
+
+const doc = await UserAnalytics.findOneAndUpdate(
+  { sessionId: payload.sessionId },
+  { $set: updateData },
+  { upsert: true, new: true, setDefaultsOnInsert: true }
+);
     res.json(doc);
   } catch (err) {
     console.error(err);

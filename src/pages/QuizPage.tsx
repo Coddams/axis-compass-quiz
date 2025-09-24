@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { questions } from "@/data/quizData";
 import { useUser } from "@/contexts/UserContext";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { calculateResult } from "@/data/quizData";
 
 interface UserAnswer {
   economic: number;
@@ -17,7 +18,11 @@ interface UserAnswer {
 const QuizPage = () => {
   const navigate = useNavigate();
   const { userName } = useUser();
-  const { initializeSession, trackQuestionAnswer, trackPageView } = useAnalytics();
+
+  // ✅ include trackQuizCompletion here
+  const { initializeSession, trackQuestionAnswer, trackPageView, trackQuizCompletion } =
+    useAnalytics();
+
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<{
@@ -26,20 +31,19 @@ const QuizPage = () => {
     vector: [number, number, number];
   } | null>(null);
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
+  const [quizStartTime] = useState<number>(Date.now()); // to track total duration
 
   const question = questions[currentQuestion];
   const isLastQuestion = currentQuestion === questions.length - 1;
 
   useEffect(() => {
-    // Initialize user session when quiz starts
     if (userName) {
       initializeSession(userName);
     }
-    trackPageView('quiz');
+    trackPageView("quiz");
   }, [userName, initializeSession, trackPageView]);
 
   useEffect(() => {
-    // Reset selected answer and track time when moving to a new question
     setSelectedAnswer(null);
     setQuestionStartTime(Date.now());
   }, [currentQuestion]);
@@ -47,14 +51,9 @@ const QuizPage = () => {
   const handleAnswer = (answer: { id: string; text: string; vector: [number, number, number] }) => {
     setSelectedAnswer(answer);
 
-    // Track question analytics
     const timeSpentOnQuestion = Math.floor((Date.now() - questionStartTime) / 1000);
-    trackQuestionAnswer(
-      question,
-      currentQuestion,
-      answer,
-      timeSpentOnQuestion
-    );
+
+    trackQuestionAnswer(question, currentQuestion, answer, timeSpentOnQuestion);
 
     setTimeout(() => {
       const newAnswers = [...answers];
@@ -66,7 +65,17 @@ const QuizPage = () => {
       setAnswers(newAnswers);
 
       if (isLastQuestion) {
+        // Save answers for result page
         sessionStorage.setItem("quizAnswers", JSON.stringify(newAnswers));
+
+        // ✅ Compute result from answers (ideology, top figures, etc.)
+        const result = calculateResult(newAnswers);
+        trackQuizCompletion(
+          result, 
+          Math.floor((Date.now() - quizStartTime) / 1000),
+          false
+        );
+
         navigate("/result");
       } else {
         setCurrentQuestion(currentQuestion + 1);
