@@ -187,106 +187,117 @@ export const useAnalytics = () => {
   }, [userId, sessionId]);
 
   // Track question interaction
-  const trackQuestionAnswer = useCallback(async (
-    question: CanonQuestion,
-    questionIndex: number,
-    selectedAnswer: any,
-    timeSpentOnQuestion: number,
-    hesitationTime?: number,
-    changedAnswer?: boolean
-  ) => {
-    const questionAnalytics: QuestionAnalytics = {
-      questionId: question.id,
-      userId,
+// Track question interaction
+const trackQuestionAnswer = useCallback(async (
+  question: CanonQuestion,
+  questionIndex: number,
+  selectedAnswer: any,
+  timeSpentOnQuestion: number,
+  hesitationTime?: number,
+  changedAnswer?: boolean
+) => {
+  const questionAnalytics = {
+    questionId: question.id,
+    userId,
+    sessionId,
+    questionText: question.text,
+    // server expects `selectedAnswer` (object/mixed)
+    selectedAnswer: selectedAnswer ? {
+      id: selectedAnswer.id,
+      text: selectedAnswer.text,
+      vector: selectedAnswer.vector
+    } : null,
+    // server expects `timeSpent`
+    timeSpent: timeSpentOnQuestion,
+    timestamp: new Date(),
+    hesitationTime,
+    changedAnswer
+  };
+
+  // Update current session locally
+  setCurrentSession(prev => {
+    const next: UserAnalytics = {
+      ...(prev || ({} as UserAnalytics)),
       sessionId,
-      questionText: question.text,
-      selectedAnswerId: selectedAnswer?.id ?? null,
-      selectedAnswerText: selectedAnswer?.text ?? null,
-      selectedVector: selectedAnswer?.vector ?? null,
-      timeSpentOnQuestion,
-      timestamp: new Date(),
-      hesitationTime,
-      changedAnswer
-    };
+      id: userId,
+      currentQuestionIndex: questionIndex + 1,
+      timeSpent: ((prev && prev.timeSpent) || 0) + (timeSpentOnQuestion || 0),
+      // append questionEvents array
+      // @ts-ignore
+      questionEvents: [ ...(prev && (prev as any).questionEvents ? (prev as any).questionEvents : []), questionAnalytics ]
+    } as UserAnalytics;
 
-    // Update current session locally
-    setCurrentSession(prev => {
-      const next: UserAnalytics = {
-        ...(prev || ({} as UserAnalytics)),
-        sessionId,
-        id: userId,
-        currentQuestionIndex: questionIndex + 1,
-        timeSpent: ((prev && prev.timeSpent) || 0) + timeSpentOnQuestion,
-        // manage an array of questionEvents, append this event
-        // @ts-ignore - we may be adding fields not present in types; backend schema is flexible
-        questionEvents: [ ...(prev && (prev as any).questionEvents ? (prev as any).questionEvents : []), questionAnalytics ]
-      } as UserAnalytics;
+    // Persist the updated session (best-effort)
+    (async () => {
+      try {
+        await apiPostSession(next);
+      } catch (err) {
+        console.warn('trackQuestionAnswer: failed to persist question event to backend.', err);
+      }
+    })();
 
-      // fire off save in background (best-effort)
-      (async () => {
-        try {
-          await apiPostSession(next);
-        } catch (err) {
-          console.warn('trackQuestionAnswer: failed to persist question event to backend.', err);
-        }
-      })();
+    return next;
+  });
 
-      return next;
-    });
-
-    console.log('📊 Question answered:', questionAnalytics);
-    return questionAnalytics;
-  }, [userId, sessionId]);
+  console.log('📊 Question answered:', questionAnalytics);
+  return questionAnalytics;
+}, [userId, sessionId]);
+  
 
   // Track quiz completion
 // Replace your existing trackQuizCompletion with this version
+// Track quiz completion
 const trackQuizCompletion = useCallback(async (
   finalResult: any,
   totalCompletionTime: number,
   shareAttempted: boolean = false
 ) => {
   const resultAnalytics: QuizResultAnalytics = {
-    userId,
-    sessionId,
-    finalVector: finalResult.vector,
-    matchedIdeology: {
-      id: finalResult.ideology?.id || '',
-      name: finalResult.ideology?.name || '',
-      description: finalResult.ideology?.description || '',
-      confidence: finalResult.confidence || 0.8
-    },
-    topFigureMatches: finalResult.topFigures || [],
-    completionTime: totalCompletionTime,
-    timestamp: new Date(),
-    shareAttempted
-  };
+  userId,
+  sessionId,
+  finalVector: finalResult.vector,
+  matchedIdeology: {
+    id: finalResult.ideology?.id || '',
+    name: finalResult.ideology?.name || '',
+    description: finalResult.ideology?.description || '',
+    confidence: finalResult.confidence || 0
+  },
+  topFigureMatches: finalResult.topFigures || [],
+  // keep the numeric time field if backend expects it
+  completionTime: totalCompletionTime,
+  // canonical completed timestamp (ensure server has a date-like field)
+  completedAt: new Date(),
+  timestamp: new Date(),
+  shareAttempted
+};
 
-  // Update session locally
-setCurrentSession(prev => {
-  const next: UserAnalytics = {
-    ...(prev || ({} as UserAnalytics)),
-    completed: true,
-    endTime: new Date(),
-    timeSpent: totalCompletionTime,
-    quizResult: resultAnalytics
-  };
 
-  (async () => {
-    try {
-      await apiUpdateSession(sessionId, {
-        completed: true,
-        endTime: new Date(),
-        timeSpent: totalCompletionTime,
-        quizResult: resultAnalytics
-      });
-    } catch (err) {
-      console.warn('trackQuizCompletion: failed to persist completion to backend.', err);
-    }
-  })();
+  // Update session locally and persist canonical fields the server expects
+  setCurrentSession(prev => {
+    const next: UserAnalytics = {
+      ...(prev || ({} as UserAnalytics)),
+      completed: true,
+      endTime: new Date(),
+      timeSpent: totalCompletionTime,
+      quizResult: resultAnalytics
+    };
 
-  return next;
-});
+    // Persist only the fields server expects (PUT update by sessionId)
+    (async () => {
+      try {
+        await apiUpdateSession(sessionId, {
+          completed: true,
+          endTime: next.endTime,
+          timeSpent: totalCompletionTime,
+          quizResult: resultAnalytics
+        });
+      } catch (err) {
+        console.warn('trackQuizCompletion: failed to persist completion to backend.', err);
+      }
+    })();
 
+    return next;
+  });
 
   console.log('📊 Quiz completed:', resultAnalytics);
   return resultAnalytics;

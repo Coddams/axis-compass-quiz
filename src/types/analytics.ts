@@ -80,6 +80,8 @@ export interface QuizResultAnalytics {
     comment?: string;
     timestamp: Date;
   };
+  completedAt?: Date | string;
+
 }
 
 export interface QuestionStatistics {
