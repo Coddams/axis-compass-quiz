@@ -186,7 +186,6 @@ export const useAnalytics = () => {
     return session;
   }, [userId, sessionId]);
 
-  // Track question interaction
 // Track question interaction
 const trackQuestionAnswer = useCallback(async (
   question: CanonQuestion,
@@ -196,18 +195,13 @@ const trackQuestionAnswer = useCallback(async (
   hesitationTime?: number,
   changedAnswer?: boolean
 ) => {
-  const questionAnalytics = {
+  const questionEvent = {
     questionId: question.id,
-    userId,
-    sessionId,
-    questionText: question.text,
-    // server expects `selectedAnswer` (object/mixed)
     selectedAnswer: selectedAnswer ? {
       id: selectedAnswer.id,
       text: selectedAnswer.text,
       vector: selectedAnswer.vector
     } : null,
-    // server expects `timeSpent`
     timeSpent: timeSpentOnQuestion,
     timestamp: new Date(),
     hesitationTime,
@@ -216,21 +210,26 @@ const trackQuestionAnswer = useCallback(async (
 
   // Update current session locally
   setCurrentSession(prev => {
+    const updatedTotalTime = ((prev && prev.timeSpent) || 0) + (timeSpentOnQuestion || 0);
     const next: UserAnalytics = {
       ...(prev || ({} as UserAnalytics)),
       sessionId,
       id: userId,
       currentQuestionIndex: questionIndex + 1,
-      timeSpent: ((prev && prev.timeSpent) || 0) + (timeSpentOnQuestion || 0),
-      // append questionEvents array
-      // @ts-ignore
-      questionEvents: [ ...(prev && (prev as any).questionEvents ? (prev as any).questionEvents : []), questionAnalytics ]
-    } as UserAnalytics;
+      totalQuestions: Math.max((prev?.totalQuestions || 0), questionIndex + 1),
+      timeSpent: updatedTotalTime
+    };
 
-    // Persist the updated session (best-effort)
+    // Send only the new question event to append to backend
     (async () => {
       try {
-        await apiPostSession(next);
+        await apiPostSession({
+          sessionId,
+          currentQuestionIndex: questionIndex + 1,
+          totalQuestions: next.totalQuestions,
+          timeSpent: updatedTotalTime,
+          questionEvents: [questionEvent]
+        } as any);
       } catch (err) {
         console.warn('trackQuestionAnswer: failed to persist question event to backend.', err);
       }
@@ -239,13 +238,12 @@ const trackQuestionAnswer = useCallback(async (
     return next;
   });
 
-  console.log('📊 Question answered:', questionAnalytics);
-  return questionAnalytics;
+  console.log('📊 Question answered:', questionEvent);
+  return questionEvent;
 }, [userId, sessionId]);
   
 
   // Track quiz completion
-// Replace your existing trackQuizCompletion with this version
 // Track quiz completion
 const trackQuizCompletion = useCallback(async (
   finalResult: any,
@@ -253,26 +251,23 @@ const trackQuizCompletion = useCallback(async (
   shareAttempted: boolean = false
 ) => {
   const resultAnalytics: QuizResultAnalytics = {
-  userId,
-  sessionId,
-  finalVector: finalResult.vector,
-  matchedIdeology: {
-    id: finalResult.ideology?.id || '',
-    name: finalResult.ideology?.name || '',
-    description: finalResult.ideology?.description || '',
-    confidence: finalResult.confidence || 0
-  },
-  topFigureMatches: finalResult.topFigures || [],
-  // keep the numeric time field if backend expects it
-  completionTime: totalCompletionTime,
-  // canonical completed timestamp (ensure server has a date-like field)
-  completedAt: new Date(),
-  timestamp: new Date(),
-  shareAttempted
-};
+    userId,
+    sessionId,
+    finalVector: finalResult.vector,
+    matchedIdeology: {
+      id: finalResult.ideology?.id || '',
+      name: finalResult.ideology?.name || '',
+      description: finalResult.ideology?.description || '',
+      confidence: finalResult.confidence || 0
+    },
+    topFigureMatches: finalResult.topFigures || [],
+    completionTime: totalCompletionTime,
+    completedAt: new Date(),
+    timestamp: new Date(),
+    shareAttempted
+  };
 
-
-  // Update session locally and persist canonical fields the server expects
+  // Update session locally
   setCurrentSession(prev => {
     const next: UserAnalytics = {
       ...(prev || ({} as UserAnalytics)),
@@ -282,14 +277,26 @@ const trackQuizCompletion = useCallback(async (
       quizResult: resultAnalytics
     };
 
-    // Persist only the fields server expects (PUT update by sessionId)
+    // Persist completion data with proper structure
     (async () => {
       try {
         await apiUpdateSession(sessionId, {
           completed: true,
           endTime: next.endTime,
           timeSpent: totalCompletionTime,
-          quizResult: resultAnalytics
+          quizResult: {
+            ...resultAnalytics,
+            // Ensure MongoDB gets the completion time in the expected format
+            score: resultAnalytics.matchedIdeology.confidence,
+            resultData: {
+              finalVector: resultAnalytics.finalVector,
+              matchedIdeology: resultAnalytics.matchedIdeology,
+              topFigureMatches: resultAnalytics.topFigureMatches,
+              completionTime: totalCompletionTime,
+              shareAttempted
+            },
+            completedAt: resultAnalytics.completedAt
+          }
         });
       } catch (err) {
         console.warn('trackQuizCompletion: failed to persist completion to backend.', err);
@@ -312,17 +319,22 @@ const trackQuizCompletion = useCallback(async (
       timestamp: new Date()
     };
 
-    // Append feedback to session if possible, else just log
+    // Update quiz result with feedback if it exists
     setCurrentSession(prev => {
-      const next = {
-        ...(prev || ({} as UserAnalytics)),
-        // @ts-ignore - add feedbacks array
-        feedbacks: [ ...(prev && (prev as any).feedbacks ? (prev as any).feedbacks : []), feedback ]
-      } as UserAnalytics;
+      const next = { ...(prev || ({} as UserAnalytics)) };
+      
+      if (next.quizResult) {
+        next.quizResult = {
+          ...next.quizResult,
+          feedbackGiven: feedback
+        } as QuizResultAnalytics;
+      }
 
       (async () => {
         try {
-          await apiPostSession(next);
+          await apiUpdateSession(sessionId, {
+            quizResult: next.quizResult
+          });
         } catch (err) {
           console.warn('trackFeedback: failed to persist feedback to backend.', err);
         }
@@ -333,7 +345,7 @@ const trackQuizCompletion = useCallback(async (
 
     console.log('📊 Feedback submitted:', feedback);
     return feedback;
-  }, []);
+  }, [sessionId]);
 
   // Track page views and navigation
   const trackPageView = useCallback(async (page: string) => {

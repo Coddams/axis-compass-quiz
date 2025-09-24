@@ -23,16 +23,31 @@ router.post('/session', async (req, res) => {
 
     const updateData = { ...payload };
 
-// ✅ Ensure quizResult is saved if included
-if (payload.quizResult) {
-  updateData.quizResult = payload.quizResult;
-}
+    // Handle question events array properly
+    if (payload.questionEvents && Array.isArray(payload.questionEvents)) {
+      // Append new question events to existing ones
+      const existingDoc = await UserAnalytics.findOne({ sessionId: payload.sessionId });
+      if (existingDoc && existingDoc.questionEvents) {
+        updateData.questionEvents = [...existingDoc.questionEvents, ...payload.questionEvents];
+      } else {
+        updateData.questionEvents = payload.questionEvents;
+      }
+    }
 
-const doc = await UserAnalytics.findOneAndUpdate(
-  { sessionId: payload.sessionId },
-  { $set: updateData },
-  { upsert: true, new: true, setDefaultsOnInsert: true }
-);
+    // Ensure quizResult is properly structured
+    if (payload.quizResult) {
+      updateData.quizResult = {
+        score: payload.quizResult.score || 0,
+        resultData: payload.quizResult,
+        completedAt: payload.quizResult.completedAt || payload.quizResult.timestamp || new Date()
+      };
+    }
+
+    const doc = await UserAnalytics.findOneAndUpdate(
+      { sessionId: payload.sessionId },
+      { $set: updateData },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
     res.json(doc);
   } catch (err) {
     console.error(err);
@@ -46,6 +61,24 @@ router.put('/session/:sessionId', async (req, res) => {
     const update = req.body || {};
     update.ipAddress = req.ip || update.ipAddress;
     update.userAgent = req.get('User-Agent') || update.userAgent;
+    
+    // Handle question events properly in updates
+    if (update.questionEvents && Array.isArray(update.questionEvents)) {
+      const existingDoc = await UserAnalytics.findOne({ sessionId: req.params.sessionId });
+      if (existingDoc && existingDoc.questionEvents) {
+        update.questionEvents = [...existingDoc.questionEvents, ...update.questionEvents];
+      }
+    }
+
+    // Ensure quizResult is properly structured for updates
+    if (update.quizResult) {
+      update.quizResult = {
+        score: update.quizResult.score || 0,
+        resultData: update.quizResult,
+        completedAt: update.quizResult.completedAt || update.quizResult.timestamp || new Date()
+      };
+    }
+
     const doc = await UserAnalytics.findOneAndUpdate(
       { sessionId: req.params.sessionId },
       { $set: update },

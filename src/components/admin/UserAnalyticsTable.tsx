@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,64 +19,66 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { UserAnalytics, QuestionAnalytics, QuizResultAnalytics } from '@/types/analytics';
-import { Search, Eye, Smartphone, Monitor, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { UserAnalytics } from '@/types/analytics';
+import { Search, Eye, Smartphone, Monitor, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
 
-// Mock data - replace with your MongoDB data
-const mockUsers: (UserAnalytics & { 
-  questionAnswers?: QuestionAnalytics[]; 
-  result?: QuizResultAnalytics 
-})[] = [
-  {
-    id: 'user_1',
-    sessionId: 'session_1',
-    userName: 'John Smith',
-    startTime: new Date('2024-01-15T10:30:00'),
-    endTime: new Date('2024-01-15T10:45:00'),
-    completed: true,
-    currentQuestionIndex: 20,
-    totalQuestions: 20,
-    timeSpent: 900,
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-    referrer: 'https://google.com',
-    deviceInfo: {
-      isMobile: false,
-      screenWidth: 1920,
-      screenHeight: 1080,
-      browser: 'Chrome',
-      os: 'Windows'
-    },
-    result: {
-      userId: 'user_1',
-      sessionId: 'session_1',
-      finalVector: { economic: -1.2, social: 0.8, foreign: 0.3 },
-      matchedIdeology: {
-        id: 'liberal',
-        name: 'Liberal',
-        description: 'Progressive social values with mixed economic views',
-        confidence: 0.85
-      },
-      topFigureMatches: [
-        { id: 'lincoln', name: 'Abraham Lincoln', similarity: 0.78, vector: [-1.1, 0.9, 0.2] },
-        { id: 'roosevelt', name: 'Franklin D. Roosevelt', similarity: 0.72, vector: [-1.3, 0.7, 0.4] }
-      ],
-      completionTime: 900,
-      timestamp: new Date('2024-01-15T10:45:00'),
-      shareAttempted: true,
-      feedbackGiven: {
-        rating: 5,
-        comment: 'Very insightful quiz!',
-        timestamp: new Date('2024-01-15T10:46:00')
-      }
+// API Configuration
+const API_BASE = (import.meta.env.VITE_API_BASE as string) || '/api/analytics';
+const ADMIN_KEY = (import.meta.env.VITE_ADMIN_API_KEY as string | undefined) 
+  || (import.meta.env.VITE_API_KEY_ADMIN as string | undefined) 
+  || null;
+
+// Helper to fetch users from MongoDB
+const fetchUsers = async (): Promise<UserAnalytics[]> => {
+  try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (ADMIN_KEY) {
+      headers['x-api-key'] = ADMIN_KEY;
+      headers['Authorization'] = `Bearer ${ADMIN_KEY}`;
     }
-  },
-  // Add more mock users...
-];
+
+    const response = await fetch(`${API_BASE}`, {
+      method: 'GET',
+      headers
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch users: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
+};
 
 const UserAnalyticsTable = () => {
-  const [users] = useState(mockUsers);
+  const [users, setUsers] = useState<UserAnalytics[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedUser, setSelectedUser] = useState<typeof mockUsers[0] | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserAnalytics | null>(null);
+
+  // Load users on component mount
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    try {
+      const userData = await fetchUsers();
+      setUsers(userData);
+    } catch (error) {
+      console.error('Failed to load users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredUsers = users.filter(user => 
     user.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -99,11 +101,31 @@ const UserAnalyticsTable = () => {
     }).format(date);
   };
 
+  if (loading) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center justify-center py-8">
+          <RefreshCw className="w-6 h-6 animate-spin mr-2" />
+          Loading user data...
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold">User Analytics</h3>
         <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={loadUsers}
+            disabled={loading}
+          >
+            <RefreshCw className={`w-4 h-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -173,9 +195,9 @@ const UserAnalyticsTable = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  {user.result ? (
+                  {user.quizResult?.matchedIdeology ? (
                     <Badge variant="outline">
-                      {user.result.matchedIdeology.name}
+                      {user.quizResult.matchedIdeology.name}
                     </Badge>
                   ) : (
                     <span className="text-muted-foreground">-</span>
@@ -238,62 +260,77 @@ const UserAnalyticsTable = () => {
                           </div>
 
                           {/* Quiz Results */}
-                          {selectedUser.result && (
+                          {selectedUser.quizResult && (
                             <div className="space-y-4">
                               <h4 className="font-medium">Quiz Results</h4>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="p-4 border border-border rounded-lg">
                                   <h5 className="font-medium mb-2">Political Vector</h5>
                                   <div className="space-y-1 text-sm">
-                                    <div>Economic: <span className="font-mono">{selectedUser.result.finalVector.economic.toFixed(2)}</span></div>
-                                    <div>Social: <span className="font-mono">{selectedUser.result.finalVector.social.toFixed(2)}</span></div>  
-                                    <div>Foreign: <span className="font-mono">{selectedUser.result.finalVector.foreign.toFixed(2)}</span></div>
+                                    <div>Economic: <span className="font-mono">{selectedUser.quizResult.finalVector?.economic?.toFixed(2) || 'N/A'}</span></div>
+                                    <div>Social: <span className="font-mono">{selectedUser.quizResult.finalVector?.social?.toFixed(2) || 'N/A'}</span></div>  
+                                    <div>Foreign: <span className="font-mono">{selectedUser.quizResult.finalVector?.foreign?.toFixed(2) || 'N/A'}</span></div>
                                   </div>
                                 </div>
                                 
                                 <div className="p-4 border border-border rounded-lg">
                                   <h5 className="font-medium mb-2">Matched Ideology</h5>
                                   <div className="space-y-1 text-sm">
-                                    <div><strong>{selectedUser.result.matchedIdeology.name}</strong></div>
-                                    <div className="text-muted-foreground">{selectedUser.result.matchedIdeology.description}</div>
-                                    <div>Confidence: {(selectedUser.result.matchedIdeology.confidence * 100).toFixed(1)}%</div>
+                                    <div><strong>{selectedUser.quizResult.matchedIdeology?.name || 'N/A'}</strong></div>
+                                    <div className="text-muted-foreground">{selectedUser.quizResult.matchedIdeology?.description || 'N/A'}</div>
+                                    <div>Confidence: {selectedUser.quizResult.matchedIdeology?.confidence ? (selectedUser.quizResult.matchedIdeology.confidence * 100).toFixed(1) + '%' : 'N/A'}</div>
                                   </div>
                                 </div>
                               </div>
                               
-                              <div className="p-4 border border-border rounded-lg">
-                                <h5 className="font-medium mb-2">Top Figure Matches</h5>
-                                <div className="space-y-2">
-                                  {selectedUser.result.topFigureMatches.map((figure, index) => (
-                                    <div key={figure.id} className="flex items-center justify-between text-sm">
-                                      <span>#{index + 1} {figure.name}</span>
-                                      <span>{(figure.similarity * 100).toFixed(1)}% similarity</span>
-                                    </div>
-                                  ))}
+                              {selectedUser.quizResult.topFigureMatches && selectedUser.quizResult.topFigureMatches.length > 0 && (
+                                <div className="p-4 border border-border rounded-lg">
+                                  <h5 className="font-medium mb-2">Top Figure Matches</h5>
+                                  <div className="space-y-2">
+                                    {selectedUser.quizResult.topFigureMatches.map((figure, index) => (
+                                      <div key={figure.id} className="flex items-center justify-between text-sm">
+                                        <span>#{index + 1} {figure.name}</span>
+                                        <span>{(figure.similarity * 100).toFixed(1)}% similarity</span>
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
+                              )}
+
+                              {selectedUser.quizResult.completionTime && (
+                                <div className="p-4 border border-border rounded-lg">
+                                  <h5 className="font-medium mb-2">Completion Details</h5>
+                                  <div className="space-y-1 text-sm">
+                                    <div>Completion Time: {formatDuration(selectedUser.quizResult.completionTime)}</div>
+                                    {selectedUser.quizResult.completedAt && (
+                                      <div>Completed At: {formatDate(new Date(selectedUser.quizResult.completedAt))}</div>
+                                    )}
+                                    <div>Share Attempted: {selectedUser.quizResult.shareAttempted ? 'Yes' : 'No'}</div>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           )}
 
                           {/* Feedback */}
-                          {selectedUser.result?.feedbackGiven && (
+                          {selectedUser.quizResult?.feedbackGiven && (
                             <div className="space-y-2">
                               <h4 className="font-medium">User Feedback</h4>
                               <div className="p-4 border border-border rounded-lg">
                                 <div className="flex items-center justify-between mb-2">
                                   <div className="flex items-center gap-1">
                                     {Array.from({ length: 5 }, (_, i) => (
-                                      <span key={i} className={i < selectedUser.result!.feedbackGiven!.rating ? 'text-yellow-500' : 'text-gray-300'}>
+                                      <span key={i} className={i < selectedUser.quizResult!.feedbackGiven!.rating ? 'text-yellow-500' : 'text-gray-300'}>
                                         ★
                                       </span>
                                     ))}
                                   </div>
                                   <span className="text-sm text-muted-foreground">
-                                    {formatDate(selectedUser.result.feedbackGiven.timestamp)}
+                                    {formatDate(new Date(selectedUser.quizResult.feedbackGiven.timestamp))}
                                   </span>
                                 </div>
-                                {selectedUser.result.feedbackGiven.comment && (
-                                  <p className="text-sm">{selectedUser.result.feedbackGiven.comment}</p>
+                                {selectedUser.quizResult.feedbackGiven.comment && (
+                                  <p className="text-sm">{selectedUser.quizResult.feedbackGiven.comment}</p>
                                 )}
                               </div>
                             </div>

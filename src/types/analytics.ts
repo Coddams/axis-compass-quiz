@@ -18,24 +18,8 @@ export interface UserAnalytics {
     browser: string;
     os: string;
   };
-  quizResult?: {
-  finalVector: {
-    economic: number;
-    social: number;
-    foreign: number;
-  };
-  matchedIdeology: {
-    id: string;
-    name: string;
-    description: string;
-    confidence: number;
-  };
-  topFigureMatches: any[];
-  completionTime: number;
-  timestamp: Date;
-  shareAttempted: boolean;
-};
-
+  questionEvents?: QuestionAnalytics[];
+  quizResult?: QuizResultAnalytics;
 }
 
 export interface QuestionAnalytics {
@@ -55,6 +39,8 @@ export interface QuestionAnalytics {
 export interface QuizResultAnalytics {
   userId: string;
   sessionId: string;
+  score?: number;
+  resultData?: any;
   finalVector: {
     economic: number;
     social: number;
@@ -81,7 +67,6 @@ export interface QuizResultAnalytics {
     timestamp: Date;
   };
   completedAt?: Date | string;
-
 }
 
 export interface QuestionStatistics {
