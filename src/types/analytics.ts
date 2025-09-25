@@ -1,5 +1,6 @@
 export interface UserAnalytics {
   id: string;
+  userId: string; // MongoDB document needs both id and userId
   sessionId: string;
   userName: string;
   startTime: Date;
@@ -9,7 +10,7 @@ export interface UserAnalytics {
   totalQuestions: number;
   timeSpent: number; // in seconds
   ipAddress?: string;
-  userAgent?: string;
+  userAgent: string; // Required field for analytics
   referrer?: string;
   deviceInfo: {
     isMobile: boolean;
@@ -18,7 +19,14 @@ export interface UserAnalytics {
     browser: string;
     os: string;
   };
-  questionEvents?: QuestionAnalytics[];
+  questionEvents?: Array<{
+    questionId: string;
+    selectedAnswer: any;
+    timeSpent: number;
+    timestamp: Date;
+    hesitationTime?: number;
+    changedAnswer?: boolean;
+  }>;
   quizResult?: QuizResultAnalytics;
 }
 

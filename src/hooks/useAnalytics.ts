@@ -157,6 +157,7 @@ export const useAnalytics = () => {
 
     const session: UserAnalytics = {
       id: userId,
+      userId: userId,  // Ensure userId is included
       sessionId,
       userName,
       startTime: new Date(),
@@ -167,14 +168,30 @@ export const useAnalytics = () => {
       ipAddress: undefined, // Will be set by backend
       userAgent: navigator.userAgent,
       referrer: document.referrer || undefined,
-      deviceInfo
+      deviceInfo,
+      questionEvents: []
     } as unknown as UserAnalytics;
 
     setCurrentSession(session);
 
-    // Send to backend (upsert). We attempt to persist but do not throw if it fails.
+    // Send complete session data to backend including all required fields
     try {
-      const saved = await apiPostSession(session);
+      const sessionData = {
+        sessionId,
+        userId,
+        userName,
+        startTime: session.startTime,
+        completed: false,
+        currentQuestionIndex: 0,
+        totalQuestions: 0,
+        timeSpent: 0,
+        userAgent: navigator.userAgent,
+        referrer: document.referrer || undefined,
+        deviceInfo,
+        questionEvents: []
+      };
+      
+      const saved = await apiPostSession(sessionData);
       // backend may return the persisted document; merge minimal fields
       setCurrentSession(prev => ({ ...(prev || session), ...(saved || {}) } as UserAnalytics));
     } catch (err) {
@@ -444,31 +461,124 @@ export const useAdminAnalytics = (filters?: AnalyticsFilters) => {
         // We attempt a best-effort assignment:
         if ((data as any).totalUsers !== undefined) {
           setAnalytics(data as AdminAnalytics);
-        } else if (Array.isArray(data)) {
-          // derive some simple aggregates as a convenience (very small, extend as needed)
-          const sessions = data as any[];
-          const totalUsers = sessions.length;
-          const totalCompletedQuizzes = sessions.filter(s => s.completed).length;
-          const totalIncompletedQuizzes = totalUsers - totalCompletedQuizzes;
-          const avgTime = sessions.reduce((acc, s) => acc + (s.timeSpent || 0), 0) / Math.max(1, totalUsers);
-          setAnalytics({
-            totalUsers,
-            totalCompletedQuizzes,
-            totalIncompletedQuizzes,
-            averageCompletionTime: Math.round(avgTime),
-            averageCompletionRate: totalUsers ? (totalCompletedQuizzes / totalUsers) : 0,
-            dailyActiveUsers: totalUsers, weeklyActiveUsers: totalUsers, monthlyActiveUsers: totalUsers,
-            questionStatistics: [],
-            ideologyDistribution: [],
-            figurePopularity: [],
-            deviceStats: {},
-            browserStats: {},
-            referrerStats: {},
-            peakUsageHours: Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 })),
-            userRetentionRate: 0,
-            averageFeedbackRating: 0,
-            feedbackCount: 0
-          } as AdminAnalytics);
+      } else if (Array.isArray(data)) {
+        // Transform raw session data into AdminAnalytics
+        const sessions = data as any[];
+        const totalUsers = sessions.length;
+        const completedSessions = sessions.filter(s => s.completed);
+        const totalCompletedQuizzes = completedSessions.length;
+        const totalIncompletedQuizzes = totalUsers - totalCompletedQuizzes;
+        const avgTime = sessions.reduce((acc, s) => acc + (s.timeSpent || 0), 0) / Math.max(1, totalUsers);
+        
+        // Calculate device stats
+        const deviceStats = sessions.reduce((acc, s) => {
+          if (s.deviceInfo?.isMobile) {
+            acc.mobile = (acc.mobile || 0) + 1;
+          } else {
+            acc.desktop = (acc.desktop || 0) + 1;
+          }
+          return acc;
+        }, { mobile: 0, desktop: 0 });
+
+        // Calculate browser stats
+        const browserStats = sessions.reduce((acc, s) => {
+          const browser = s.deviceInfo?.browser || 'Unknown';
+          acc[browser] = (acc[browser] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+
+        // Calculate referrer stats
+        const referrerStats = sessions.reduce((acc, s) => {
+          const source = s.referrer ? 
+            (s.referrer.includes('google') ? 'Google' : 
+             s.referrer.includes('facebook') || s.referrer.includes('twitter') ? 'Social Media' : 'Other') 
+            : 'Direct';
+          acc[source] = (acc[source] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+
+        // Calculate ideology distribution
+        const ideologyDistribution = completedSessions
+          .filter(s => s.quizResult?.matchedIdeology)
+          .reduce((acc, s) => {
+            const ideology = s.quizResult.matchedIdeology;
+            const existing = acc.find(i => i.ideologyId === ideology.id);
+            if (existing) {
+              existing.count++;
+              // Update average vector (simplified)
+              if (s.quizResult.finalVector) {
+                existing.averageVector = {
+                  economic: (existing.averageVector.economic * (existing.count - 1) + s.quizResult.finalVector.economic) / existing.count,
+                  social: (existing.averageVector.social * (existing.count - 1) + s.quizResult.finalVector.social) / existing.count,
+                  foreign: (existing.averageVector.foreign * (existing.count - 1) + s.quizResult.finalVector.foreign) / existing.count
+                };
+              }
+            } else {
+              acc.push({
+                ideologyId: ideology.id || '',
+                ideologyName: ideology.name || '',
+                count: 1,
+                percentage: 0, // Will be calculated after
+                averageVector: s.quizResult.finalVector || { economic: 0, social: 0, foreign: 0 }
+              });
+            }
+            return acc;
+          }, [] as any[]);
+
+        // Calculate percentages for ideology distribution
+        ideologyDistribution.forEach(ideology => {
+          ideology.percentage = (ideology.count / totalCompletedQuizzes) * 100;
+        });
+
+        // Calculate figure popularity
+        const figurePopularity = completedSessions
+          .filter(s => s.quizResult?.topFigureMatches)
+          .reduce((acc, s) => {
+            s.quizResult.topFigureMatches.forEach((figure: any, index: number) => {
+              const existing = acc.find((f: any) => f.figureId === figure.id);
+              if (existing) {
+                existing.matchCount++;
+                if (index === 0) existing.topMatchCount++;
+                existing.averageSimilarity = (existing.averageSimilarity * (existing.matchCount - 1) + figure.similarity) / existing.matchCount;
+              } else {
+                acc.push({
+                  figureId: figure.id,
+                  figureName: figure.name,
+                  matchCount: 1,
+                  topMatchCount: index === 0 ? 1 : 0,
+                  averageSimilarity: figure.similarity
+                });
+              }
+            });
+            return acc;
+          }, [] as any[]);
+
+        // Calculate feedback rating
+        const feedbackSessions = completedSessions.filter(s => s.quizResult?.feedbackGiven);
+        const averageFeedbackRating = feedbackSessions.length > 0 
+          ? feedbackSessions.reduce((acc, s) => acc + s.quizResult.feedbackGiven.rating, 0) / feedbackSessions.length 
+          : 0;
+
+        setAnalytics({
+          totalUsers,
+          totalCompletedQuizzes,
+          totalIncompletedQuizzes,
+          averageCompletionTime: Math.round(avgTime),
+          averageCompletionRate: totalUsers ? (totalCompletedQuizzes / totalUsers) : 0,
+          dailyActiveUsers: totalUsers,
+          weeklyActiveUsers: totalUsers,
+          monthlyActiveUsers: totalUsers,
+          questionStatistics: [],
+          ideologyDistribution,
+          figurePopularity: figurePopularity.sort((a, b) => b.matchCount - a.matchCount),
+          deviceStats,
+          browserStats,
+          referrerStats,
+          peakUsageHours: Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 })),
+          userRetentionRate: 0,
+          averageFeedbackRating,
+          feedbackCount: feedbackSessions.length
+        } as AdminAnalytics);
         } else {
           // unknown shape - fallback
           setAnalytics(mockData);
