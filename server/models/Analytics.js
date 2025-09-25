@@ -21,7 +21,7 @@ const UserAnalyticsSchema = new Schema({
   userName: String,
   startTime: Date,
   endTime: Date,
-  completed: Boolean,
+  completed: { type: Boolean, default: false }, // CRITICAL: Ensure default value
   currentQuestionIndex: Number,
   totalQuestions: Number,
   timeSpent: Number,

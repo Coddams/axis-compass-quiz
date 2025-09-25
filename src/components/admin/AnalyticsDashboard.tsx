@@ -58,7 +58,9 @@ const AnalyticsDashboard = () => {
 
   if (!analytics) return null;
 
-  const completionRate = ((analytics.totalCompletedQuizzes / (analytics.totalCompletedQuizzes + analytics.totalIncompletedQuizzes)) * 100).toFixed(1);
+  const completionRate = analytics.totalUsers > 0 
+    ? ((analytics.totalCompletedQuizzes / analytics.totalUsers) * 100).toFixed(1)
+    : '0.0';
 
   return (
     <div className="space-y-6">
@@ -232,55 +234,69 @@ const AnalyticsDashboard = () => {
         <TabsContent value="ideologies">
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Ideology Distribution</h3>
-            <div className="space-y-4">
-              {analytics.ideologyDistribution.map((ideology) => (
-                <div key={ideology.ideologyId} className="border border-border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">{ideology.ideologyName}</h4>
-                    <Badge variant="outline">{ideology.count} users ({ideology.percentage.toFixed(1)}%)</Badge>
+            {analytics.ideologyDistribution.length > 0 ? (
+              <div className="space-y-4">
+                {analytics.ideologyDistribution.map((ideology) => (
+                  <div key={ideology.ideologyId} className="border border-border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">{ideology.ideologyName}</h4>
+                      <Badge variant="outline">{ideology.count} users ({ideology.percentage.toFixed(1)}%)</Badge>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Economic:</span>
+                        <span className="ml-1 font-mono">{ideology.averageVector.economic.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Social:</span>
+                        <span className="ml-1 font-mono">{ideology.averageVector.social.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Foreign:</span>
+                        <span className="ml-1 font-mono">{ideology.averageVector.foreign.toFixed(2)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Economic:</span>
-                      <span className="ml-1 font-mono">{ideology.averageVector.economic.toFixed(2)}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Social:</span>
-                      <span className="ml-1 font-mono">{ideology.averageVector.social.toFixed(2)}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Foreign:</span>
-                      <span className="ml-1 font-mono">{ideology.averageVector.foreign.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No completed quizzes with ideology data yet.</p>
+                <p className="text-sm mt-2">Ideology distribution will appear after users complete the quiz.</p>
+              </div>
+            )}
           </Card>
         </TabsContent>
 
         <TabsContent value="figures">
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Historical Figure Popularity</h3>
-            <div className="space-y-4">
-              {analytics.figurePopularity.map((figure, index) => (
-                <div key={figure.figureId} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <div className="text-2xl font-bold text-muted-foreground">#{index + 1}</div>
-                    <div>
-                      <h4 className="font-medium">{figure.figureName}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {figure.matchCount} total matches • {figure.topMatchCount} top matches
-                      </p>
+            {analytics.figurePopularity.length > 0 ? (
+              <div className="space-y-4">
+                {analytics.figurePopularity.map((figure, index) => (
+                  <div key={figure.figureId} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                    <div className="flex items-center gap-4">
+                      <div className="text-2xl font-bold text-muted-foreground">#{index + 1}</div>
+                      <div>
+                        <h4 className="font-medium">{figure.figureName}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {figure.matchCount} total matches • {figure.topMatchCount} top matches
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold">{(figure.averageSimilarity * 100).toFixed(1)}%</div>
+                      <div className="text-sm text-muted-foreground">Avg. Similarity</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-semibold">{(figure.averageSimilarity * 100).toFixed(1)}%</div>
-                    <div className="text-sm text-muted-foreground">Avg. Similarity</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No figure matching data available yet.</p>
+                <p className="text-sm mt-2">Figure popularity will appear after users complete the quiz.</p>
+              </div>
+            )}
           </Card>
         </TabsContent>
       </Tabs>

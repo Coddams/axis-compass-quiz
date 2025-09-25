@@ -181,7 +181,7 @@ export const useAnalytics = () => {
         userId,
         userName,
         startTime: session.startTime,
-        completed: false,
+        completed: false, // CRITICAL: Explicitly set to false initially
         currentQuestionIndex: 0,
         totalQuestions: 0,
         timeSpent: 0,
@@ -191,6 +191,7 @@ export const useAnalytics = () => {
         questionEvents: []
       };
       
+      console.log('📊 Initializing session with completed:', sessionData.completed);
       const saved = await apiPostSession(sessionData);
       // backend may return the persisted document; merge minimal fields
       setCurrentSession(prev => ({ ...(prev || session), ...(saved || {}) } as UserAnalytics));
@@ -260,7 +261,6 @@ const trackQuestionAnswer = useCallback(async (
 }, [userId, sessionId]);
   
 
-  // Track quiz completion
 // Track quiz completion
 const trackQuizCompletion = useCallback(async (
   finalResult: any,
@@ -288,7 +288,7 @@ const trackQuizCompletion = useCallback(async (
   setCurrentSession(prev => {
     const next: UserAnalytics = {
       ...(prev || ({} as UserAnalytics)),
-      completed: true,
+      completed: true, // CRITICAL: Set completed to true
       endTime: new Date(),
       timeSpent: totalCompletionTime,
       quizResult: resultAnalytics
@@ -297,8 +297,9 @@ const trackQuizCompletion = useCallback(async (
     // Persist completion data with proper structure
     (async () => {
       try {
+        console.log('📊 Marking quiz as completed: true');
         await apiUpdateSession(sessionId, {
-          completed: true,
+          completed: true, // CRITICAL: Explicitly send completed: true
           endTime: next.endTime,
           timeSpent: totalCompletionTime,
           quizResult: {
@@ -315,6 +316,7 @@ const trackQuizCompletion = useCallback(async (
             completedAt: resultAnalytics.completedAt
           }
         });
+        console.log('📊 Quiz completion successfully sent to backend');
       } catch (err) {
         console.warn('trackQuizCompletion: failed to persist completion to backend.', err);
       }
