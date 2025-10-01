@@ -262,72 +262,79 @@ const trackQuestionAnswer = useCallback(async (
   
 
 // Track quiz completion
-const trackQuizCompletion = useCallback(async (
-  finalResult: any,
-  totalCompletionTime: number,
-  shareAttempted: boolean = false
-) => {
-  const resultAnalytics: QuizResultAnalytics = {
-    userId,
-    sessionId,
-    finalVector: finalResult.vector,
-    matchedIdeology: {
-      id: finalResult.ideology?.id || '',
-      name: finalResult.ideology?.name || '',
-      description: finalResult.ideology?.description || '',
-      confidence: finalResult.confidence || 0
-    },
-    topFigureMatches: finalResult.topFigures || [],
-    completionTime: totalCompletionTime,
-    completedAt: new Date(),
-    timestamp: new Date(),
-    shareAttempted
-  };
-
-  // Update session locally
-  setCurrentSession(prev => {
-    const next: UserAnalytics = {
-      ...(prev || ({} as UserAnalytics)),
-      completed: true, // CRITICAL: Set completed to true
-      endTime: new Date(),
-      timeSpent: totalCompletionTime,
-      quizResult: resultAnalytics
+const trackQuizCompletion = useCallback(
+  async (
+    finalResult: any,
+    totalCompletionTime: number,
+    shareAttempted: boolean = false
+  ) => {
+    const resultAnalytics: QuizResultAnalytics = {
+      userId,
+      sessionId,
+      finalVector: finalResult.vector || [], // ensure not undefined
+      matchedIdeology: {
+        id: finalResult.ideology?.id || '',
+        name: finalResult.ideology?.name || '',
+        description: finalResult.ideology?.description || '',
+        confidence: finalResult.confidence || 0
+      },
+      topFigureMatches: finalResult.topFigures || [],
+      completionTime: totalCompletionTime,
+      completedAt: new Date(),
+      timestamp: new Date(),
+      shareAttempted
     };
 
-    // Persist completion data with proper structure
-    (async () => {
-      try {
-        console.log('📊 Marking quiz as completed: true');
-        await apiUpdateSession(sessionId, {
-          completed: true, // CRITICAL: Explicitly send completed: true
-          endTime: next.endTime,
-          timeSpent: totalCompletionTime,
-          quizResult: {
-            ...resultAnalytics,
-            // Ensure MongoDB gets the completion time in the expected format
-            score: resultAnalytics.matchedIdeology.confidence,
-            resultData: {
-              finalVector: resultAnalytics.finalVector,
-              matchedIdeology: resultAnalytics.matchedIdeology,
-              topFigureMatches: resultAnalytics.topFigureMatches,
-              completionTime: totalCompletionTime,
-              shareAttempted
-            },
-            completedAt: resultAnalytics.completedAt
-          }
-        });
-        console.log('📊 Quiz completion successfully sent to backend');
-      } catch (err) {
-        console.warn('trackQuizCompletion: failed to persist completion to backend.', err);
-      }
-    })();
+    // Update session locally
+    setCurrentSession(prev => {
+      const next: UserAnalytics = {
+        ...(prev || ({} as UserAnalytics)),
+        completed: true, // mark session completed
+        endTime: new Date(),
+        timeSpent: totalCompletionTime,
+        quizResult: resultAnalytics
+      };
 
-    return next;
-  });
+      // Persist completion data with proper structure
+      (async () => {
+        try {
+          console.log('📊 Marking quiz as completed: true');
+          await apiUpdateSession(sessionId, {
+            completed: true,
+            endTime: next.endTime,
+            timeSpent: totalCompletionTime,
+            quizResult: {
+              userId,
+              sessionId,
+              score: resultAnalytics.matchedIdeology.confidence, // store confidence as score
+              completedAt: resultAnalytics.completedAt,
+              resultData: {
+                finalVector: resultAnalytics.finalVector,
+                matchedIdeology: resultAnalytics.matchedIdeology,
+                topFigureMatches: resultAnalytics.topFigureMatches,
+                completionTime: totalCompletionTime,
+                shareAttempted
+              }
+            }
+          });
+          console.log('📊 Quiz completion successfully sent to backend');
+        } catch (err) {
+          console.warn(
+            'trackQuizCompletion: failed to persist completion to backend.',
+            err
+          );
+        }
+      })();
 
-  console.log('📊 Quiz completed:', resultAnalytics);
-  return resultAnalytics;
-}, [userId, sessionId]);
+      return next;
+    });
+
+    console.log('📊 Quiz completed (local state):', resultAnalytics);
+    return resultAnalytics;
+  },
+  [userId, sessionId]
+);
+
 
 
   // Track user feedback
