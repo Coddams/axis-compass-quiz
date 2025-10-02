@@ -1,60 +1,112 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { QuestionStatistics } from '@/types/analytics';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import questionsData from '@/config/questions.json';
+import { RefreshCw } from 'lucide-react';
 
-// Mock data - replace with your MongoDB data
-const mockQuestionStats: QuestionStatistics[] = [
-  {
-    questionId: 'q1',
-    questionText: 'A large corporation is considering moving its headquarters overseas to reduce taxes. What should be the government\'s response?',
-    totalResponses: 1247,
-    answerDistribution: [
-      { answerId: 'a1', answerText: 'Implement tax reforms to keep businesses domestic', count: 456, percentage: 36.6 },
-      { answerId: 'a2', answerText: 'Allow the free market to decide', count: 298, percentage: 23.9 },
-      { answerId: 'a3', answerText: 'Impose penalties on companies that move overseas', count: 321, percentage: 25.7 },
-      { answerId: 'a4', answerText: 'Provide incentives for companies to stay', count: 172, percentage: 13.8 }
-    ],
-    averageTimeSpent: 34.5,
-    skipRate: 0.02,
-    changeAnswerRate: 0.18
-  },
-  {
-    questionId: 'q2', 
-    questionText: 'The government is debating whether to legalize recreational marijuana. What is your position?',
-    totalResponses: 1247,
-    answerDistribution: [
-      { answerId: 'a1', answerText: 'Full legalization with regulation', count: 534, percentage: 42.8 },
-      { answerId: 'a2', answerText: 'Decriminalization only', count: 287, percentage: 23.0 },
-      { answerId: 'a3', answerText: 'Keep current restrictions', count: 198, percentage: 15.9 },
-      { answerId: 'a4', answerText: 'Increase penalties for drug use', count: 228, percentage: 18.3 }
-    ],
-    averageTimeSpent: 28.2,
-    skipRate: 0.01,
-    changeAnswerRate: 0.22
-  },
-  {
-    questionId: 'q3',
-    questionText: 'A foreign nation is committing human rights violations. How should your country respond?',
-    totalResponses: 1247,
-    answerDistribution: [
-      { answerId: 'a1', answerText: 'Implement economic sanctions', count: 423, percentage: 33.9 },
-      { answerId: 'a2', answerText: 'Use diplomatic pressure only', count: 356, percentage: 28.6 },
-      { answerId: 'a3', answerText: 'Military intervention if necessary', count: 198, percentage: 15.9 },
-      { answerId: 'a4', answerText: 'Focus on domestic issues first', count: 270, percentage: 21.6 }
-    ],
-    averageTimeSpent: 41.7,
-    skipRate: 0.03,
-    changeAnswerRate: 0.25
-  }
-];
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
+const API_KEY = import.meta.env.VITE_ADMIN_API_KEY || 'CHANGE_ME';
+
+// Generate real question stats from database
+const generateQuestionStats = (sessions: any[]): QuestionStatistics[] => {
+  const questionMap: Record<string, QuestionStatistics> = {};
+  
+  // Initialize from questions config
+  questionsData.forEach((q: any) => {
+    questionMap[q.id] = {
+      questionId: q.id,
+      questionText: q.text,
+      totalResponses: 0,
+      answerDistribution: q.answers.map((a: any) => ({
+        answerId: a.id,
+        answerText: a.text,
+        count: 0,
+        percentage: 0
+      })),
+      averageTimeSpent: 0,
+      skipRate: 0,
+      changeAnswerRate: 0
+    };
+  });
+
+  // Aggregate from sessions
+  let totalTimePerQuestion: Record<string, number[]> = {};
+  let changedAnswers = 0;
+  let totalAnswers = 0;
+
+  sessions.forEach((session: any) => {
+    if (session.questionEvents && Array.isArray(session.questionEvents)) {
+      session.questionEvents.forEach((event: any) => {
+        const qId = event.questionId;
+        if (questionMap[qId]) {
+          questionMap[qId].totalResponses++;
+          
+          // Count answer
+          const answerIdx = questionMap[qId].answerDistribution.findIndex(
+            a => a.answerId === event.selectedAnswer?.id
+          );
+          if (answerIdx !== -1) {
+            questionMap[qId].answerDistribution[answerIdx].count++;
+          }
+
+          // Track time
+          if (!totalTimePerQuestion[qId]) totalTimePerQuestion[qId] = [];
+          totalTimePerQuestion[qId].push(event.timeSpent || 0);
+
+          // Track changes
+          if (event.changedAnswer) changedAnswers++;
+          totalAnswers++;
+        }
+      });
+    }
+  });
+
+  // Calculate percentages and averages
+  Object.values(questionMap).forEach(q => {
+    if (q.totalResponses > 0) {
+      q.answerDistribution.forEach(a => {
+        a.percentage = (a.count / q.totalResponses) * 100;
+      });
+
+      const times = totalTimePerQuestion[q.questionId] || [];
+      q.averageTimeSpent = times.length > 0 
+        ? times.reduce((a, b) => a + b, 0) / times.length 
+        : 0;
+    }
+    q.changeAnswerRate = totalAnswers > 0 ? changedAnswers / totalAnswers : 0;
+  });
+
+  return Object.values(questionMap).filter(q => q.totalResponses > 0);
+};
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c'];
 
 const QuizStatistics = () => {
   const [selectedQuestion, setSelectedQuestion] = useState<QuestionStatistics | null>(null);
+  const [questionStats, setQuestionStats] = useState<QuestionStatistics[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchQuestionStats = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/analytics/sessions?api_key=${API_KEY}`);
+      const sessions = await response.json();
+      const stats = generateQuestionStats(sessions || []);
+      setQuestionStats(stats);
+    } catch (error) {
+      console.error('Failed to fetch question stats:', error);
+      setQuestionStats([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuestionStats();
+  }, []);
 
   const formatTime = (seconds: number) => {
     return `${seconds.toFixed(1)}s`;
@@ -73,20 +125,42 @@ const QuizStatistics = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center justify-center py-8">
+          <RefreshCw className="w-6 h-6 animate-spin mr-2" />
+          Loading question analytics...
+        </div>
+      </Card>
+    );
+  }
+
+  if (questionStats.length === 0) {
+    return (
+      <Card className="p-6">
+        <div className="text-center py-8 text-muted-foreground">
+          <p>No question data available yet.</p>
+          <p className="text-sm mt-2">Question analytics will appear after users answer quiz questions.</p>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-4">
           <div className="text-center">
-            <div className="text-2xl font-bold">{mockQuestionStats.length}</div>
-            <div className="text-sm text-muted-foreground">Total Questions</div>
+            <div className="text-2xl font-bold">{questionStats.length}</div>
+            <div className="text-sm text-muted-foreground">Questions Answered</div>
           </div>
         </Card>
         <Card className="p-4">
           <div className="text-center">
             <div className="text-2xl font-bold">
-              {formatTime(mockQuestionStats.reduce((sum, q) => sum + q.averageTimeSpent, 0) / mockQuestionStats.length)}
+              {formatTime(questionStats.reduce((sum, q) => sum + q.averageTimeSpent, 0) / questionStats.length)}
             </div>
             <div className="text-sm text-muted-foreground">Avg Time per Question</div>
           </div>
@@ -94,18 +168,18 @@ const QuizStatistics = () => {
         <Card className="p-4">
           <div className="text-center">
             <div className="text-2xl font-bold">
-              {((mockQuestionStats.reduce((sum, q) => sum + q.changeAnswerRate, 0) / mockQuestionStats.length) * 100).toFixed(1)}%
+              {questionStats.reduce((sum, q) => sum + q.totalResponses, 0).toLocaleString()}
             </div>
-            <div className="text-sm text-muted-foreground">Avg Answer Change Rate</div>
+            <div className="text-sm text-muted-foreground">Total Responses</div>
           </div>
         </Card>
       </div>
 
       {/* Question List */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Question Performance</h3>
+        <h3 className="text-lg font-semibold mb-4">Question Performance (Real Data)</h3>
         <div className="space-y-4">
-          {mockQuestionStats.map((question, index) => {
+          {questionStats.map((question, index) => {
             const engagement = getEngagementLevel(question.averageTimeSpent, question.changeAnswerRate);
             const mostPopularAnswer = question.answerDistribution.reduce((prev, current) => 
               prev.percentage > current.percentage ? prev : current

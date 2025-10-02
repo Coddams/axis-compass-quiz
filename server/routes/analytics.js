@@ -152,6 +152,19 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+// Fetch all user sessions (admin)
+router.get('/sessions', requireAdmin, async (req, res) => {
+  try {
+    const q = {};
+    if (req.query.completed) q.completed = req.query.completed === 'true';
+    const docs = await UserAnalytics.find(q).sort({ createdAt: -1 }).limit(1000);
+    res.json(docs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'server error' });
+  }
+});
+
 // Fetch sessions with aggregated analytics data
 router.get('/', requireAdmin, async (req, res) => {
   try {

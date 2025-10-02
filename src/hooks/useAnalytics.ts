@@ -308,6 +308,7 @@ const trackQuizCompletion = useCallback(
     quizResult: {
       score: resultAnalytics.matchedIdeology.confidence,
       completedAt: resultAnalytics.completedAt,
+      timestamp: new Date(), // Fixed: Added required timestamp field
       // Don't nest in resultData - send directly
       finalVector: resultAnalytics.finalVector,
       matchedIdeology: resultAnalytics.matchedIdeology,
