@@ -14,32 +14,40 @@ router.use(limiter);
 router.post('/session', async (req, res) => {
   try {
     const payload = req.body || {};
-    if (!payload.sessionId) return res.status(400).json({ error: 'sessionId required' });
-
-    // server-sourced fields
-    payload.ipAddress = req.ip || (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress;
-    payload.userAgent = req.get('User-Agent') || payload.userAgent || 'unknown';
-    payload.referrer = payload.referrer || req.get('Referer') || undefined;
-
-    const updateData = { ...payload };
-
-    // Explicitly handle all required fields to ensure they get saved
-    if (payload.userId) updateData.userId = payload.userId;
-    if (payload.userName) updateData.userName = payload.userName;
-    if (payload.startTime) updateData.startTime = payload.startTime;
-    if (payload.endTime) updateData.endTime = payload.endTime;
-    if (payload.deviceInfo) updateData.deviceInfo = payload.deviceInfo;
     
-    // CRITICAL: Ensure completed field is always set
-    if (typeof payload.completed === 'boolean') {
-      updateData.completed = payload.completed;
-    } else if (!updateData.completed) {
-      updateData.completed = false; // Default to false if not specified
+    if (!payload.sessionId) {
+      return res.status(400).json({ error: 'sessionId required' });
     }
 
-    // Handle question events array properly
+    // Build clean update object
+    const updateData = {
+      sessionId: payload.sessionId,
+      userId: payload.userId,
+      userName: payload.userName,
+      startTime: payload.startTime,
+      currentQuestionIndex: payload.currentQuestionIndex || 0,
+      totalQuestions: payload.totalQuestions || 0,
+      timeSpent: payload.timeSpent || 0,
+    };
+    
+    // CRITICAL: Explicitly handle completed
+    if (typeof payload.completed === 'boolean') {
+      updateData.completed = payload.completed;
+    } else {
+      updateData.completed = false; // Explicit default
+    }
+    
+    // Add optional fields
+    if (payload.endTime) updateData.endTime = payload.endTime;
+    if (payload.deviceInfo) updateData.deviceInfo = payload.deviceInfo;
+    if (payload.referrer) updateData.referrer = payload.referrer;
+    
+    // Server-sourced fields (override client)
+    updateData.ipAddress = req.ip || (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress;
+    updateData.userAgent = req.get('User-Agent') || payload.userAgent || 'unknown';
+    
+    // Handle question events (append mode)
     if (payload.questionEvents && Array.isArray(payload.questionEvents)) {
-      // Append new question events to existing ones
       const existingDoc = await UserAnalytics.findOne({ sessionId: payload.sessionId });
       if (existingDoc && existingDoc.questionEvents) {
         updateData.questionEvents = [...existingDoc.questionEvents, ...payload.questionEvents];
@@ -47,27 +55,36 @@ router.post('/session', async (req, res) => {
         updateData.questionEvents = payload.questionEvents;
       }
     }
-
-    // Ensure quizResult is properly structured
+    
+    // Handle quiz result
     if (payload.quizResult) {
       updateData.quizResult = {
         score: payload.quizResult.score || 0,
         resultData: payload.quizResult,
-        completedAt: payload.quizResult.completedAt || payload.quizResult.timestamp || new Date()
+        completedAt: payload.quizResult.completedAt || new Date()
       };
     }
-
-    console.log('Saving session with completed:', updateData.completed); // Debug log
-
+    
+    console.log('💾 Upserting session with completed:', updateData.completed);
+    
     const doc = await UserAnalytics.findOneAndUpdate(
       { sessionId: payload.sessionId },
       { $set: updateData },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { 
+        upsert: true, 
+        new: true, 
+        setDefaultsOnInsert: true,
+        runValidators: true
+      }
     );
+    
+    console.log('💾 Saved document completed:', doc.completed);
+    console.log('💾 Saved document ID:', doc._id);
+    
     res.json(doc);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'server error' });
+    console.error('❌ POST /session error:', err);
+    res.status(500).json({ error: 'server error', details: err.message });
   }
 });
 
@@ -75,41 +92,55 @@ router.post('/session', async (req, res) => {
 router.put('/session/:sessionId', async (req, res) => {
   try {
     const update = req.body || {};
-    update.ipAddress = req.ip || update.ipAddress;
-    update.userAgent = req.get('User-Agent') || update.userAgent;
     
-    // CRITICAL: Ensure completed field is properly handled in updates
+    // Build clean update object
+    const updateData = {};
+    
+    // CRITICAL: Explicitly set completed field
     if (typeof update.completed === 'boolean') {
-      // This is the key fix - explicitly set the completed field
-      console.log('Updating completed status to:', update.completed); // Debug log
+      updateData.completed = update.completed;
+      console.log('🔧 Setting completed to:', update.completed);
     }
     
-    // Handle question events properly in updates
-    if (update.questionEvents && Array.isArray(update.questionEvents)) {
-      const existingDoc = await UserAnalytics.findOne({ sessionId: req.params.sessionId });
-      if (existingDoc && existingDoc.questionEvents) {
-        update.questionEvents = [...existingDoc.questionEvents, ...update.questionEvents];
-      }
-    }
-
-    // Ensure quizResult is properly structured for updates
+    // Add other fields
+    if (update.endTime) updateData.endTime = update.endTime;
+    if (update.timeSpent !== undefined) updateData.timeSpent = update.timeSpent;
+    
+    // Handle quizResult properly
     if (update.quizResult) {
-      update.quizResult = {
+      updateData.quizResult = {
         score: update.quizResult.score || 0,
         resultData: update.quizResult,
-        completedAt: update.quizResult.completedAt || update.quizResult.timestamp || new Date()
+        completedAt: update.quizResult.completedAt || new Date()
       };
     }
-
+    
+    // Add server-side enrichment
+    updateData.ipAddress = req.ip || update.ipAddress;
+    updateData.userAgent = req.get('User-Agent') || update.userAgent;
+    
+    console.log('🔧 Full update data:', JSON.stringify(updateData, null, 2));
+    
+    // Use findOneAndUpdate with explicit $set
     const doc = await UserAnalytics.findOneAndUpdate(
       { sessionId: req.params.sessionId },
-      { $set: update },
-      { new: true }
+      { $set: updateData },  // ← Ensure $set is used
+      { 
+        new: true,           // Return updated document
+        runValidators: true  // Run schema validators
+      }
     );
-    console.log('Updated document completed:', doc.completed); // Debug log
+    
+    if (!doc) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    console.log('✅ Updated document completed:', doc.completed);
+    console.log('✅ Updated document ID:', doc._id);
+    
     res.json(doc);
   } catch (err) {
-    console.error(err);
+    console.error('❌ PUT /session/:sessionId error:', err);
     res.status(500).json({ error: 'server error' });
   }
 });

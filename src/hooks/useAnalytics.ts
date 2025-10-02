@@ -268,64 +268,83 @@ const trackQuizCompletion = useCallback(
     totalCompletionTime: number,
     shareAttempted: boolean = false
   ) => {
+    console.log('🔍 trackQuizCompletion called');
+    console.log('🔍 finalResult:', finalResult);
+
+    // Build the result analytics object
     const resultAnalytics: QuizResultAnalytics = {
       userId,
       sessionId,
-      finalVector: finalResult.vector || [], // ensure not undefined
+      finalVector: {
+        economic: finalResult.economic || 0,
+        social: finalResult.social || 0,
+        foreign: finalResult.foreign || 0
+      },
       matchedIdeology: {
         id: finalResult.ideology?.id || '',
         name: finalResult.ideology?.name || '',
         description: finalResult.ideology?.description || '',
-        confidence: finalResult.confidence || 0
+        confidence: finalResult.ideology?.confidence || 0
       },
-      topFigureMatches: finalResult.topFigures || [],
+      topFigureMatches: (finalResult.topMatches || []).map((match: any) => ({
+        id: match.figure.id,
+        name: match.figure.name,
+        similarity: match.similarity,
+        vector: match.figure.vector || [0, 0, 0]
+      })),
       completionTime: totalCompletionTime,
       completedAt: new Date(),
       timestamp: new Date(),
       shareAttempted
     };
 
-    // Update session locally
+    console.log('🔍 resultAnalytics built:', resultAnalytics);
+
+    // Build the update payload
+    const updatePayload = {
+    completed: true,
+    endTime: new Date(),
+    timeSpent: totalCompletionTime,
+    quizResult: {
+      score: resultAnalytics.matchedIdeology.confidence,
+      completedAt: resultAnalytics.completedAt,
+      // Don't nest in resultData - send directly
+      finalVector: resultAnalytics.finalVector,
+      matchedIdeology: resultAnalytics.matchedIdeology,
+      topFigureMatches: resultAnalytics.topFigureMatches,
+      completionTime: totalCompletionTime,
+      shareAttempted,
+      userId,
+      sessionId
+    } 
+    };
+
+    console.log('🔍 Update payload:', updatePayload);
+
+    // Send to backend FIRST (outside of setState)
+    try {
+      console.log('📊 Marking quiz as completed: true');
+      console.log('🌐 Calling apiUpdateSession...');
+      
+      const response = await apiUpdateSession(sessionId, updatePayload);
+      
+      console.log('✅ Quiz completion successfully sent to backend');
+      console.log('🌐 Backend response:', response);
+    } catch (err) {
+      console.error('❌ Failed to persist completion to backend:', err);
+    }
+
+    // THEN update local state
     setCurrentSession(prev => {
       const next: UserAnalytics = {
         ...(prev || ({} as UserAnalytics)),
-        completed: true, // mark session completed
-        endTime: new Date(),
+        completed: true,
+        endTime: updatePayload.endTime,
         timeSpent: totalCompletionTime,
         quizResult: resultAnalytics
       };
-
-      // Persist completion data with proper structure
-      (async () => {
-        try {
-          console.log('📊 Marking quiz as completed: true');
-          await apiUpdateSession(sessionId, {
-            completed: true,
-            endTime: next.endTime,
-            timeSpent: totalCompletionTime,
-            quizResult: {
-              userId,
-              sessionId,
-              score: resultAnalytics.matchedIdeology.confidence, // store confidence as score
-              completedAt: resultAnalytics.completedAt,
-              resultData: {
-                finalVector: resultAnalytics.finalVector,
-                matchedIdeology: resultAnalytics.matchedIdeology,
-                topFigureMatches: resultAnalytics.topFigureMatches,
-                completionTime: totalCompletionTime,
-                shareAttempted
-              }
-            }
-          });
-          console.log('📊 Quiz completion successfully sent to backend');
-        } catch (err) {
-          console.warn(
-            'trackQuizCompletion: failed to persist completion to backend.',
-            err
-          );
-        }
-      })();
-
+      
+      console.log('🔍 Updated local session state');
       return next;
     });
 
