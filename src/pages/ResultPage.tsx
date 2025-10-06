@@ -128,12 +128,17 @@ const ResultPage = () => {
 
           {/* Ideology */}
           {result.ideology && (
-            <div className="mt-4 p-4 bg-card rounded-xl shadow-md border border-border">
-              <h2 className="text-2xl font-bold text-primary">
-                {result.ideology.name}
-              </h2>
-              <p className="text-muted-foreground mt-2">
-                {result.ideology.description}
+            <div className="mt-4 p-4 bg-card rounded-xl shadow-md border border-border space-y-3">
+              <div>
+                <h2 className="text-2xl font-bold text-primary">
+                  {result.ideology.name}
+                </h2>
+                <p className="text-muted-foreground mt-2">
+                  {result.ideology.description}
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground italic border-t border-border pt-3">
+                Note: This result is an approximation based on your responses and our scoring model; it's intended for insight and comparison, not a definitive political label.
               </p>
             </div>
           )}

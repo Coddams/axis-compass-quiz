@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, HelpCircle } from "lucide-react";
 import QuestionCard from "@/components/QuestionCard";
 import ProgressBar from "@/components/ProgressBar";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { questions } from "@/data/quizData";
 import { useUser } from "@/contexts/UserContext";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -124,6 +132,33 @@ const QuizPage = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
             {userName ? `${userName}'s Political Compass Quiz` : "Political Compass Quiz"}
           </h1>
+          
+          {/* Methodology CTA */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <button className="text-xs text-muted-foreground hover:text-primary underline flex items-center gap-1 mx-auto transition-colors">
+                <HelpCircle className="w-3 h-3" />
+                How this works (brief)
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Quiz Methodology</DialogTitle>
+                <DialogDescription className="text-left space-y-3 pt-2">
+                  <ul className="list-disc list-inside space-y-2 text-sm">
+                    <li>Questions measure three axes: economic, social, and foreign policy positions</li>
+                    <li>Your responses generate coordinate scores used to match you with historical political figures</li>
+                    <li>Results are approximations based on our scoring model, intended for insight and comparison</li>
+                    <li>Inspired by multi-axis models (e.g., Nolan Chart) and social-psychological frameworks</li>
+                  </ul>
+                  <p className="text-xs text-muted-foreground pt-2">
+                    This tool is for educational and entertainment purposes.
+                  </p>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+          
           <ProgressBar current={currentQuestion + 1} total={questions.length} />
         </div>
 

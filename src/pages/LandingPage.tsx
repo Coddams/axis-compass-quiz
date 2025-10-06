@@ -103,9 +103,14 @@ const LandingPage = () => {
         </div>
 
         {/* Footer Note */}
-        <p className="text-sm text-muted-foreground mt-12">
-          Takes about 3-5 minutes • Anonymous & Privacy-Focused
-        </p>
+        <div className="mt-12 space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Takes about 3-5 minutes • Anonymous & Privacy-Focused
+          </p>
+          <p className="text-xs text-muted-foreground max-w-3xl mx-auto">
+            This app's approach is inspired by widely used multi-axis political models (e.g., the Nolan Chart) and social-psychological frameworks (e.g., Moral Foundations). It is an independent tool for educational and entertainment purposes.
+          </p>
+        </div>
       </div>
     </div>
   );
