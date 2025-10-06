@@ -1,11 +1,5 @@
 import { useState } from "react";
 import { CheckCircle2, ThumbsUp, ThumbsDown } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 // Canonical answer shape
 interface Answer {
@@ -23,33 +17,40 @@ interface QuestionCardProps {
 }
 
 const QuestionCard = ({ question, answers, onAnswer, selectedAnswer }: QuestionCardProps) => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [previewedAnswer, setPreviewedAnswer] = useState<Answer | null>(null);
+
+  const handleAnswerClick = (answer: Answer) => {
+    // If this answer is already previewed, confirm it
+    if (previewedAnswer?.id === answer.id) {
+      onAnswer(answer);
+    } else {
+      // First click - show preview
+      setPreviewedAnswer(answer);
+    }
+  };
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <div className="result-card max-w-2xl mx-auto space-y-6">
-        <div className="text-center space-y-4">
-          <h2 className="text-xl md:text-2xl font-semibold text-foreground">
-            {question}
-          </h2>
-        </div>
+    <div className="result-card max-w-2xl mx-auto space-y-6">
+      <div className="text-center space-y-4">
+        <h2 className="text-xl md:text-2xl font-semibold text-foreground">
+          {question}
+        </h2>
+      </div>
 
-        <div className="space-y-3">
-          {answers.map((answer, index) => {
-            const isSelected = selectedAnswer?.id === answer.id;
-            const isHovered = hoveredIndex === index;
-            const hasImplications = answer.implications && (answer.implications.pros || answer.implications.cons);
+      <div className="space-y-3">
+        {answers.map((answer) => {
+          const isSelected = selectedAnswer?.id === answer.id;
+          const isPreviewed = previewedAnswer?.id === answer.id;
+          const hasImplications = answer.implications && (answer.implications.pros || answer.implications.cons);
 
-            const answerButton = (
+          return (
+            <div key={answer.id} className="space-y-2">
               <button
-                key={answer.id}
-                onClick={() => onAnswer(answer)}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
+                onClick={() => handleAnswerClick(answer)}
                 className={`
                   btn-answer w-full relative
                   ${isSelected ? "selected" : ""}
-                  ${isHovered && !isSelected ? "bg-accent/50" : ""}
+                  ${isPreviewed && !isSelected ? "bg-accent border-primary border-2" : ""}
                 `}
               >
                 <div className="flex items-center justify-between">
@@ -57,60 +58,48 @@ const QuestionCard = ({ question, answers, onAnswer, selectedAnswer }: QuestionC
                   {isSelected && (
                     <CheckCircle2 className="w-5 h-5 text-primary-foreground ml-3 animate-scale-in" />
                   )}
+                  {isPreviewed && !isSelected && (
+                    <span className="text-xs text-muted-foreground ml-3">Click again to confirm</span>
+                  )}
                 </div>
               </button>
-            );
 
-            // Wrap with tooltip if implications exist
-            if (hasImplications) {
-              return (
-                <Tooltip key={answer.id}>
-                  <TooltipTrigger asChild>
-                    {answerButton}
-                  </TooltipTrigger>
-                  <TooltipContent 
-                    side="right" 
-                    className="max-w-sm p-4 bg-popover border-border"
-                    sideOffset={10}
-                  >
-                    <div className="space-y-3">
-                      {answer.implications?.pros && answer.implications.pros.length > 0 && (
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-green-500 font-semibold text-sm">
-                            <ThumbsUp className="w-4 h-4" />
-                            <span>Pros</span>
-                          </div>
-                          <ul className="list-disc list-inside space-y-0.5 text-xs text-popover-foreground">
-                            {answer.implications.pros.map((pro, i) => (
-                              <li key={i}>{pro}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {answer.implications?.cons && answer.implications.cons.length > 0 && (
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-red-500 font-semibold text-sm">
-                            <ThumbsDown className="w-4 h-4" />
-                            <span>Cons</span>
-                          </div>
-                          <ul className="list-disc list-inside space-y-0.5 text-xs text-popover-foreground">
-                            {answer.implications.cons.map((con, i) => (
-                              <li key={i}>{con}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+              {/* Show pros/cons when previewed */}
+              {isPreviewed && hasImplications && (
+                <div className="ml-4 p-4 bg-card border border-border rounded-lg space-y-3 animate-in fade-in-0 slide-in-from-top-2">
+                  {answer.implications?.pros && answer.implications.pros.length > 0 && (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1 text-green-500 font-semibold text-sm">
+                        <ThumbsUp className="w-4 h-4" />
+                        <span>Pros</span>
+                      </div>
+                      <ul className="list-disc list-inside space-y-0.5 text-xs text-muted-foreground">
+                        {answer.implications.pros.map((pro, i) => (
+                          <li key={i}>{pro}</li>
+                        ))}
+                      </ul>
                     </div>
-                  </TooltipContent>
-                </Tooltip>
-              );
-            }
-
-            return answerButton;
-          })}
-        </div>
+                  )}
+                  {answer.implications?.cons && answer.implications.cons.length > 0 && (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1 text-red-500 font-semibold text-sm">
+                        <ThumbsDown className="w-4 h-4" />
+                        <span>Cons</span>
+                      </div>
+                      <ul className="list-disc list-inside space-y-0.5 text-xs text-muted-foreground">
+                        {answer.implications.cons.map((con, i) => (
+                          <li key={i}>{con}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
-    </TooltipProvider>
+    </div>
   );
 };
 
