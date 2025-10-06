@@ -1,8 +1,8 @@
 // src/hooks/useAnalytics.ts
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  UserAnalytics, 
-  QuestionAnalytics, 
+import {
+  UserAnalytics,
+  QuestionAnalytics,
   QuizResultAnalytics,
   AdminAnalytics,
   AnalyticsFilters
@@ -149,9 +149,9 @@ export const useAnalytics = () => {
       isMobile: window.innerWidth < 768,
       screenWidth: window.screen.width,
       screenHeight: window.screen.height,
-      browser: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
-                navigator.userAgent.includes('Firefox') ? 'Firefox' : 
-                navigator.userAgent.includes('Safari') ? 'Safari' : 'Other',
+      browser: navigator.userAgent.includes('Chrome') ? 'Chrome' :
+        navigator.userAgent.includes('Firefox') ? 'Firefox' :
+          navigator.userAgent.includes('Safari') ? 'Safari' : 'Other',
       os: navigator.platform
     };
 
@@ -190,7 +190,7 @@ export const useAnalytics = () => {
         deviceInfo,
         questionEvents: []
       };
-      
+
       console.log('📊 Initializing session with completed:', sessionData.completed);
       const saved = await apiPostSession(sessionData);
       // backend may return the persisted document; merge minimal fields
@@ -204,190 +204,186 @@ export const useAnalytics = () => {
     return session;
   }, [userId, sessionId]);
 
-// Track question interaction
-const trackQuestionAnswer = useCallback(async (
-  question: CanonQuestion,
-  questionIndex: number,
-  selectedAnswer: any,
-  timeSpentOnQuestion: number,
-  hesitationTime?: number,
-  changedAnswer?: boolean
-) => {
-  const questionEvent = {
-    questionId: question.id,
-    selectedAnswer: selectedAnswer ? {
-      id: selectedAnswer.id,
-      text: selectedAnswer.text,
-      vector: selectedAnswer.vector
-    } : null,
-    timeSpent: timeSpentOnQuestion,
-    timestamp: new Date(),
-    hesitationTime,
-    changedAnswer
-  };
-
-  // Update current session locally
-  setCurrentSession(prev => {
-    const updatedTotalTime = ((prev && prev.timeSpent) || 0) + (timeSpentOnQuestion || 0);
-    const next: UserAnalytics = {
-      ...(prev || ({} as UserAnalytics)),
-      sessionId,
-      id: userId,
-      currentQuestionIndex: questionIndex + 1,
-      totalQuestions: Math.max((prev?.totalQuestions || 0), questionIndex + 1),
-      timeSpent: updatedTotalTime
-    };
-
-    // Send only the new question event to append to backend
-    (async () => {
-      try {
-        await apiPostSession({
-          sessionId,
-          currentQuestionIndex: questionIndex + 1,
-          totalQuestions: next.totalQuestions,
-          timeSpent: updatedTotalTime,
-          questionEvents: [questionEvent]
-        } as any);
-      } catch (err) {
-        console.warn('trackQuestionAnswer: failed to persist question event to backend.', err);
-      }
-    })();
-
-    return next;
-  });
-
-  console.log('📊 Question answered:', questionEvent);
-  return questionEvent;
-}, [userId, sessionId]);
-  
-
-// Track quiz completion
-const trackQuizCompletion = useCallback(
-  async (
-    finalResult: any,
-    totalCompletionTime: number,
-    shareAttempted: boolean = false
+  // Track question interaction
+  const trackQuestionAnswer = useCallback(async (
+    question: CanonQuestion,
+    questionIndex: number,
+    selectedAnswer: any,
+    timeSpentOnQuestion: number,
+    hesitationTime?: number,
+    changedAnswer?: boolean
   ) => {
-    console.log('🔍 trackQuizCompletion called');
-    console.log('🔍 finalResult:', finalResult);
-
-    // Build the result analytics object
-    const resultAnalytics: QuizResultAnalytics = {
-      userId,
-      sessionId,
-      finalVector: {
-        economic: finalResult.economic || 0,
-        social: finalResult.social || 0,
-        foreign: finalResult.foreign || 0
-      },
-      matchedIdeology: {
-        id: finalResult.ideology?.id || '',
-        name: finalResult.ideology?.name || '',
-        description: finalResult.ideology?.description || '',
-        confidence: finalResult.ideology?.confidence || 0
-      },
-      topFigureMatches: (finalResult.topMatches || []).map((match: any) => ({
-        id: match.figure.id,
-        name: match.figure.name,
-        similarity: match.similarity,
-        vector: match.figure.vector || [0, 0, 0]
-      })),
-      completionTime: totalCompletionTime,
-      completedAt: new Date(),
+    const questionEvent = {
+      questionId: question.id,
+      selectedAnswer: selectedAnswer ? {
+        id: selectedAnswer.id,
+        text: selectedAnswer.text,
+        vector: selectedAnswer.vector
+      } : null,
+      timeSpent: timeSpentOnQuestion,
       timestamp: new Date(),
-      shareAttempted
+      hesitationTime,
+      changedAnswer
     };
 
-    console.log('🔍 resultAnalytics built:', resultAnalytics);
-
-    // Build the update payload
-    const updatePayload = {
-    completed: true,
-    endTime: new Date(),
-    timeSpent: totalCompletionTime,
-    quizResult: {
-      score: resultAnalytics.matchedIdeology.confidence,
-      completedAt: resultAnalytics.completedAt,
-      timestamp: new Date(), // Fixed: Added required timestamp field
-      // Don't nest in resultData - send directly
-      finalVector: resultAnalytics.finalVector,
-      matchedIdeology: resultAnalytics.matchedIdeology,
-      topFigureMatches: resultAnalytics.topFigureMatches,
-      completionTime: totalCompletionTime,
-      shareAttempted,
-      userId,
-      sessionId
-    } 
-    };
-
-    console.log('🔍 Update payload:', updatePayload);
-
-    // Send to backend FIRST (outside of setState)
-    try {
-      console.log('📊 Marking quiz as completed: true');
-      console.log('🌐 Calling apiUpdateSession...');
-      
-      const response = await apiUpdateSession(sessionId, updatePayload);
-      
-      console.log('✅ Quiz completion successfully sent to backend');
-      console.log('🌐 Backend response:', response);
-    } catch (err) {
-      console.error('❌ Failed to persist completion to backend:', err);
-    }
-
-    // THEN update local state
+    // Update current session locally
     setCurrentSession(prev => {
+      const updatedTotalTime = ((prev && prev.timeSpent) || 0) + (timeSpentOnQuestion || 0);
       const next: UserAnalytics = {
         ...(prev || ({} as UserAnalytics)),
-        completed: true,
-        endTime: updatePayload.endTime,
-        timeSpent: totalCompletionTime,
-        quizResult: resultAnalytics
+        sessionId,
+        id: userId,
+        currentQuestionIndex: questionIndex + 1,
+        totalQuestions: Math.max((prev?.totalQuestions || 0), questionIndex + 1),
+        timeSpent: updatedTotalTime
       };
-      
-      console.log('🔍 Updated local session state');
+
+      // Send only the new question event to append to backend
+      (async () => {
+        try {
+          await apiPostSession({
+            sessionId,
+            currentQuestionIndex: questionIndex + 1,
+            totalQuestions: next.totalQuestions,
+            timeSpent: updatedTotalTime,
+            questionEvents: [questionEvent]
+          } as any);
+        } catch (err) {
+          console.warn('trackQuestionAnswer: failed to persist question event to backend.', err);
+        }
+      })();
+
       return next;
     });
 
-    console.log('📊 Quiz completed (local state):', resultAnalytics);
-    return resultAnalytics;
-  },
-  [userId, sessionId]
-);
+    console.log('📊 Question answered:', questionEvent);
+    return questionEvent;
+  }, [userId, sessionId]);
+
+
+  // Track quiz completion
+  const trackQuizCompletion = useCallback(
+    async (
+      finalResult: any,
+      totalCompletionTime: number,
+      shareAttempted: boolean = false
+    ) => {
+      console.log('🔍 trackQuizCompletion called');
+      console.log('🔍 finalResult:', finalResult);
+
+      // Build the result analytics object
+      const resultAnalytics: QuizResultAnalytics = {
+        userId,
+        sessionId,
+        finalVector: {
+          economic: finalResult.economic || 0,
+          social: finalResult.social || 0,
+          foreign: finalResult.foreign || 0
+        },
+        matchedIdeology: {
+          id: finalResult.ideology?.id || '',
+          name: finalResult.ideology?.name || '',
+          description: finalResult.ideology?.description || '',
+          confidence: finalResult.ideology?.confidence || 0
+        },
+        topFigureMatches: (finalResult.topMatches || []).map((match: any) => ({
+          id: match.figure.id,
+          name: match.figure.name,
+          similarity: match.similarity,
+          vector: match.figure.vector || [0, 0, 0]
+        })),
+        completionTime: totalCompletionTime,
+        completedAt: new Date(),
+        timestamp: new Date(),
+        shareAttempted
+      };
+
+      console.log('🔍 resultAnalytics built:', resultAnalytics);
+
+      // Build the update payload
+      const updatePayload = {
+        completed: true,
+        endTime: new Date(),
+        timeSpent: totalCompletionTime,
+        quizResult: {
+          score: resultAnalytics.matchedIdeology.confidence,
+          completedAt: resultAnalytics.completedAt,
+          timestamp: new Date(), // Fixed: Added required timestamp field
+          // Don't nest in resultData - send directly
+          finalVector: resultAnalytics.finalVector,
+          matchedIdeology: resultAnalytics.matchedIdeology,
+          topFigureMatches: resultAnalytics.topFigureMatches,
+          completionTime: totalCompletionTime,
+          shareAttempted,
+          userId,
+          sessionId
+        }
+      };
+
+      console.log('🔍 Update payload:', updatePayload);
+
+      // Send to backend FIRST (outside of setState)
+      try {
+        console.log('📊 Marking quiz as completed: true');
+        console.log('🌐 Calling apiUpdateSession...');
+
+        const response = await apiUpdateSession(sessionId, updatePayload);
+
+        console.log('✅ Quiz completion successfully sent to backend');
+        console.log('🌐 Backend response:', response);
+      } catch (err) {
+        console.error('❌ Failed to persist completion to backend:', err);
+      }
+
+      // THEN update local state
+      setCurrentSession(prev => {
+        const next: UserAnalytics = {
+          ...(prev || ({} as UserAnalytics)),
+          completed: true,
+          endTime: updatePayload.endTime,
+          timeSpent: totalCompletionTime,
+          quizResult: resultAnalytics
+        };
+
+        console.log('🔍 Updated local session state');
+        return next;
+      });
+
+      console.log('📊 Quiz completed (local state):', resultAnalytics);
+      return resultAnalytics;
+    },
+    [userId, sessionId]
+  );
 
 
 
   // Track user feedback
-  const trackFeedback = useCallback(async (rating: number, comment?: string) => {
+  // Track user feedback
+  const trackFeedback = useCallback(async (rating: number, comment?: string, customSessionId?: string) => {
+    const targetSessionId = customSessionId || sessionId;
+
     const feedback = {
       rating,
       comment,
       timestamp: new Date()
     };
 
-    // Update quiz result with feedback if it exists
-    setCurrentSession(prev => {
-      const next = { ...(prev || ({} as UserAnalytics)) };
-      
-      if (next.quizResult) {
-        next.quizResult = {
-          ...next.quizResult,
-          feedbackGiven: feedback
-        } as QuizResultAnalytics;
+    console.log('📊 trackFeedback called with sessionId:', targetSessionId);
+
+    // Build the update payload directly
+    const updatePayload = {
+      quizResult: {
+        feedbackGiven: feedback
       }
+    };
 
-      (async () => {
-        try {
-          await apiUpdateSession(sessionId, {
-            quizResult: next.quizResult
-          });
-        } catch (err) {
-          console.warn('trackFeedback: failed to persist feedback to backend.', err);
-        }
-      })();
-
-      return next;
-    });
+    try {
+      const response = await apiUpdateSession(targetSessionId, updatePayload);
+      console.log('✅ Feedback persisted to backend:', response);
+    } catch (err) {
+      console.error('❌ trackFeedback: failed to persist feedback to backend.', err);
+      throw err;
+    }
 
     console.log('📊 Feedback submitted:', feedback);
     return feedback;
@@ -408,7 +404,7 @@ const trackQuizCompletion = useCallback(
       const next = {
         ...(prev || ({} as UserAnalytics)),
         // @ts-ignore
-        pageViews: [ ...(prev && (prev as any).pageViews ? (prev as any).pageViews : []), pageView ]
+        pageViews: [...(prev && (prev as any).pageViews ? (prev as any).pageViews : []), pageView]
       } as UserAnalytics;
 
       (async () => {
@@ -490,124 +486,126 @@ export const useAdminAnalytics = (filters?: AnalyticsFilters) => {
         // We attempt a best-effort assignment:
         if ((data as any).totalUsers !== undefined) {
           setAnalytics(data as AdminAnalytics);
-      } else if (Array.isArray(data)) {
-        // Transform raw session data into AdminAnalytics
-        const sessions = data as any[];
-        const totalUsers = sessions.length;
-        const completedSessions = sessions.filter(s => s.completed);
-        const totalCompletedQuizzes = completedSessions.length;
-        const totalIncompletedQuizzes = totalUsers - totalCompletedQuizzes;
-        const avgTime = sessions.reduce((acc, s) => acc + (s.timeSpent || 0), 0) / Math.max(1, totalUsers);
-        
-        // Calculate device stats
-        const deviceStats = sessions.reduce((acc, s) => {
-          if (s.deviceInfo?.isMobile) {
-            acc.mobile = (acc.mobile || 0) + 1;
-          } else {
-            acc.desktop = (acc.desktop || 0) + 1;
-          }
-          return acc;
-        }, { mobile: 0, desktop: 0 });
+        } else if (Array.isArray(data)) {
+          // Transform raw session data into AdminAnalytics
+          const sessions = data as any[];
+          const totalUsers = sessions.length;
+          const completedSessions = sessions.filter(s => s.completed);
+          const totalCompletedQuizzes = completedSessions.length;
+          const totalIncompletedQuizzes = totalUsers - totalCompletedQuizzes;
+          const avgTime = sessions.reduce((acc, s) => acc + (s.timeSpent || 0), 0) / Math.max(1, totalUsers);
 
-        // Calculate browser stats
-        const browserStats = sessions.reduce((acc, s) => {
-          const browser = s.deviceInfo?.browser || 'Unknown';
-          acc[browser] = (acc[browser] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        // Calculate referrer stats
-        const referrerStats = sessions.reduce((acc, s) => {
-          const source = s.referrer ? 
-            (s.referrer.includes('google') ? 'Google' : 
-             s.referrer.includes('facebook') || s.referrer.includes('twitter') ? 'Social Media' : 'Other') 
-            : 'Direct';
-          acc[source] = (acc[source] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        // Calculate ideology distribution
-        const ideologyDistribution = completedSessions
-          .filter(s => s.quizResult?.matchedIdeology)
-          .reduce((acc, s) => {
-            const ideology = s.quizResult.matchedIdeology;
-            const existing = acc.find(i => i.ideologyId === ideology.id);
-            if (existing) {
-              existing.count++;
-              // Update average vector (simplified)
-              if (s.quizResult.finalVector) {
-                existing.averageVector = {
-                  economic: (existing.averageVector.economic * (existing.count - 1) + s.quizResult.finalVector.economic) / existing.count,
-                  social: (existing.averageVector.social * (existing.count - 1) + s.quizResult.finalVector.social) / existing.count,
-                  foreign: (existing.averageVector.foreign * (existing.count - 1) + s.quizResult.finalVector.foreign) / existing.count
-                };
-              }
+          // Calculate device stats
+          const deviceStats = sessions.reduce((acc, s) => {
+            if (s.deviceInfo?.isMobile) {
+              acc.mobile = (acc.mobile || 0) + 1;
             } else {
-              acc.push({
-                ideologyId: ideology.id || '',
-                ideologyName: ideology.name || '',
-                count: 1,
-                percentage: 0, // Will be calculated after
-                averageVector: s.quizResult.finalVector || { economic: 0, social: 0, foreign: 0 }
-              });
+              acc.desktop = (acc.desktop || 0) + 1;
             }
             return acc;
-          }, [] as any[]);
+          }, { mobile: 0, desktop: 0 });
 
-        // Calculate percentages for ideology distribution
-        ideologyDistribution.forEach(ideology => {
-          ideology.percentage = (ideology.count / totalCompletedQuizzes) * 100;
-        });
+          // Calculate browser stats
+          const browserStats = sessions.reduce((acc, s) => {
+            const browser = s.deviceInfo?.browser || 'Unknown';
+            acc[browser] = (acc[browser] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>);
 
-        // Calculate figure popularity
-        const figurePopularity = completedSessions
-          .filter(s => s.quizResult?.topFigureMatches)
-          .reduce((acc, s) => {
-            s.quizResult.topFigureMatches.forEach((figure: any, index: number) => {
-              const existing = acc.find((f: any) => f.figureId === figure.id);
+          // Calculate referrer stats
+          const referrerStats = sessions.reduce((acc, s) => {
+            const source = s.referrer ?
+              (s.referrer.includes('google') ? 'Google' :
+                s.referrer.includes('facebook') || s.referrer.includes('twitter') ? 'Social Media' : 'Other')
+              : 'Direct';
+            acc[source] = (acc[source] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>);
+
+          // Calculate ideology distribution
+          const ideologyDistribution = completedSessions
+            .filter(s => s.quizResult?.matchedIdeology)
+            .reduce((acc, s) => {
+              const ideology = s.quizResult.matchedIdeology;
+              const existing = acc.find(i => i.ideologyId === ideology.id);
               if (existing) {
-                existing.matchCount++;
-                if (index === 0) existing.topMatchCount++;
-                existing.averageSimilarity = (existing.averageSimilarity * (existing.matchCount - 1) + figure.similarity) / existing.matchCount;
+                existing.count++;
+                // Update average vector (simplified)
+                if (s.quizResult.finalVector) {
+                  existing.averageVector = {
+                    economic: (existing.averageVector.economic * (existing.count - 1) + s.quizResult.finalVector.economic) / existing.count,
+                    social: (existing.averageVector.social * (existing.count - 1) + s.quizResult.finalVector.social) / existing.count,
+                    foreign: (existing.averageVector.foreign * (existing.count - 1) + s.quizResult.finalVector.foreign) / existing.count
+                  };
+                }
               } else {
                 acc.push({
-                  figureId: figure.id,
-                  figureName: figure.name,
-                  matchCount: 1,
-                  topMatchCount: index === 0 ? 1 : 0,
-                  averageSimilarity: figure.similarity
+                  ideologyId: ideology.id || '',
+                  ideologyName: ideology.name || '',
+                  count: 1,
+                  percentage: 0, // Will be calculated after
+                  averageVector: s.quizResult.finalVector || { economic: 0, social: 0, foreign: 0 }
                 });
               }
-            });
-            return acc;
-          }, [] as any[]);
+              return acc;
+            }, [] as any[]);
 
-        // Calculate feedback rating
-        const feedbackSessions = completedSessions.filter(s => s.quizResult?.feedbackGiven);
-        const averageFeedbackRating = feedbackSessions.length > 0 
-          ? feedbackSessions.reduce((acc, s) => acc + s.quizResult.feedbackGiven.rating, 0) / feedbackSessions.length 
-          : 0;
+          // Calculate percentages for ideology distribution
+          ideologyDistribution.forEach(ideology => {
+            ideology.percentage = (ideology.count / totalCompletedQuizzes) * 100;
+          });
 
-        setAnalytics({
-          totalUsers,
-          totalCompletedQuizzes,
-          totalIncompletedQuizzes,
-          averageCompletionTime: Math.round(avgTime),
-          averageCompletionRate: totalUsers ? (totalCompletedQuizzes / totalUsers) : 0,
-          dailyActiveUsers: totalUsers,
-          weeklyActiveUsers: totalUsers,
-          monthlyActiveUsers: totalUsers,
-          questionStatistics: [],
-          ideologyDistribution,
-          figurePopularity: figurePopularity.sort((a, b) => b.matchCount - a.matchCount),
-          deviceStats,
-          browserStats,
-          referrerStats,
-          peakUsageHours: Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 })),
-          userRetentionRate: 0,
-          averageFeedbackRating,
-          feedbackCount: feedbackSessions.length
-        } as AdminAnalytics);
+          // Calculate figure popularity
+          const figurePopularity = completedSessions
+            .filter(s => s.quizResult?.topFigureMatches)
+            .reduce((acc, s) => {
+              s.quizResult.topFigureMatches.forEach((figure: any, index: number) => {
+                const existing = acc.find((f: any) => f.figureId === figure.id);
+                if (existing) {
+                  existing.matchCount++;
+                  if (index === 0) existing.topMatchCount++;
+                  existing.averageSimilarity = (existing.averageSimilarity * (existing.matchCount - 1) + figure.similarity) / existing.matchCount;
+                } else {
+                  acc.push({
+                    figureId: figure.id,
+                    figureName: figure.name,
+                    matchCount: 1,
+                    topMatchCount: index === 0 ? 1 : 0,
+                    averageSimilarity: figure.similarity
+                  });
+                }
+              });
+              return acc;
+            }, [] as any[]);
+
+          // Calculate feedback rating
+          const feedbackSessions = completedSessions.filter(s =>
+            s.quizResult?.feedbackGiven?.rating > 0
+          );
+          const averageFeedbackRating = feedbackSessions.length > 0
+            ? feedbackSessions.reduce((acc, s) => acc + s.quizResult.feedbackGiven.rating, 0) / feedbackSessions.length
+            : 0;
+
+          setAnalytics({
+            totalUsers,
+            totalCompletedQuizzes,
+            totalIncompletedQuizzes,
+            averageCompletionTime: Math.round(avgTime),
+            averageCompletionRate: totalUsers ? (totalCompletedQuizzes / totalUsers) : 0,
+            dailyActiveUsers: totalUsers,
+            weeklyActiveUsers: totalUsers,
+            monthlyActiveUsers: totalUsers,
+            questionStatistics: [],
+            ideologyDistribution,
+            figurePopularity: figurePopularity.sort((a, b) => b.matchCount - a.matchCount),
+            deviceStats,
+            browserStats,
+            referrerStats,
+            peakUsageHours: Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 })),
+            userRetentionRate: 0,
+            averageFeedbackRating,
+            feedbackCount: feedbackSessions.length
+          } as AdminAnalytics);
         } else {
           // unknown shape - fallback
           setAnalytics(mockData);

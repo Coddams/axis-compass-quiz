@@ -14,7 +14,7 @@ router.use(limiter);
 router.post('/session', async (req, res) => {
   try {
     const payload = req.body || {};
-    
+
     if (!payload.sessionId) {
       return res.status(400).json({ error: 'sessionId required' });
     }
@@ -29,23 +29,23 @@ router.post('/session', async (req, res) => {
       totalQuestions: payload.totalQuestions || 0,
       timeSpent: payload.timeSpent || 0,
     };
-    
+
     // CRITICAL: Explicitly handle completed
     if (typeof payload.completed === 'boolean') {
       updateData.completed = payload.completed;
     } else {
       updateData.completed = false; // Explicit default
     }
-    
+
     // Add optional fields
     if (payload.endTime) updateData.endTime = payload.endTime;
     if (payload.deviceInfo) updateData.deviceInfo = payload.deviceInfo;
     if (payload.referrer) updateData.referrer = payload.referrer;
-    
+
     // Server-sourced fields (override client)
     updateData.ipAddress = req.ip || (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress;
     updateData.userAgent = req.get('User-Agent') || payload.userAgent || 'unknown';
-    
+
     // Handle question events (append mode)
     if (payload.questionEvents && Array.isArray(payload.questionEvents)) {
       const existingDoc = await UserAnalytics.findOne({ sessionId: payload.sessionId });
@@ -55,7 +55,7 @@ router.post('/session', async (req, res) => {
         updateData.questionEvents = payload.questionEvents;
       }
     }
-    
+
     // Handle quiz result
     if (payload.quizResult) {
       updateData.quizResult = {
@@ -64,23 +64,23 @@ router.post('/session', async (req, res) => {
         completedAt: payload.quizResult.completedAt || new Date()
       };
     }
-    
+
     console.log('💾 Upserting session with completed:', updateData.completed);
-    
+
     const doc = await UserAnalytics.findOneAndUpdate(
       { sessionId: payload.sessionId },
       { $set: updateData },
-      { 
-        upsert: true, 
-        new: true, 
+      {
+        upsert: true,
+        new: true,
         setDefaultsOnInsert: true,
         runValidators: true
       }
     );
-    
+
     console.log('💾 Saved document completed:', doc.completed);
     console.log('💾 Saved document ID:', doc._id);
-    
+
     res.json(doc);
   } catch (err) {
     console.error('❌ POST /session error:', err);
@@ -92,52 +92,50 @@ router.post('/session', async (req, res) => {
 router.put('/session/:sessionId', async (req, res) => {
   try {
     const update = req.body || {};
-    
-    // Build clean update object
     const updateData = {};
-    
-    // CRITICAL: Explicitly set completed field
+
     if (typeof update.completed === 'boolean') {
       updateData.completed = update.completed;
       console.log('🔧 Setting completed to:', update.completed);
     }
-    
-    // Add other fields
+
     if (update.endTime) updateData.endTime = update.endTime;
     if (update.timeSpent !== undefined) updateData.timeSpent = update.timeSpent;
-    
-    // Handle quizResult properly
+
+    // Handle quizResult properly - MERGE instead of replace
     if (update.quizResult) {
-      updateData.quizResult = {
-        score: update.quizResult.score || 0,
-        resultData: update.quizResult,
-        completedAt: update.quizResult.completedAt || new Date()
-      };
+      // If only feedback is being sent, use $set with dot notation
+      if (update.quizResult.feedbackGiven && Object.keys(update.quizResult).length === 1) {
+        updateData['quizResult.feedbackGiven'] = update.quizResult.feedbackGiven;
+      } else {
+        // Full quiz result update
+        updateData.quizResult = {
+          score: update.quizResult.score || 0,
+          resultData: update.quizResult,
+          completedAt: update.quizResult.completedAt || new Date()
+        };
+      }
     }
-    
-    // Add server-side enrichment
+
     updateData.ipAddress = req.ip || update.ipAddress;
     updateData.userAgent = req.get('User-Agent') || update.userAgent;
-    
+
     console.log('🔧 Full update data:', JSON.stringify(updateData, null, 2));
-    
-    // Use findOneAndUpdate with explicit $set
+
     const doc = await UserAnalytics.findOneAndUpdate(
       { sessionId: req.params.sessionId },
-      { $set: updateData },  // ← Ensure $set is used
-      { 
-        new: true,           // Return updated document
-        runValidators: true  // Run schema validators
+      { $set: updateData },
+      {
+        new: true,
+        runValidators: true
       }
     );
-    
+
     if (!doc) {
       return res.status(404).json({ error: 'Session not found' });
     }
-    
-    console.log('✅ Updated document completed:', doc.completed);
-    console.log('✅ Updated document ID:', doc._id);
-    
+
+    console.log('✅ Updated document:', doc._id);
     res.json(doc);
   } catch (err) {
     console.error('❌ PUT /session/:sessionId error:', err);
@@ -151,6 +149,42 @@ function requireAdmin(req, res, next) {
   if (!key || key !== adminApiKey) return res.status(401).json({ error: 'unauthorized' });
   next();
 }
+
+// Get raw sessions for detailed analysis (admin only)
+router.get('/sessions', requireAdmin, async (req, res) => {
+  try {
+    console.log('Fetching raw sessions for question analytics');
+
+    const query = {};
+
+    // Optional filters
+    if (req.query.completed === 'true') {
+      query.completed = true;
+    }
+
+    if (req.query.limit) {
+      const limit = parseInt(req.query.limit);
+      const sessions = await UserAnalytics.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+
+      console.log(`Returning ${sessions.length} sessions`);
+      return res.json(sessions);
+    }
+
+    // Default: return all sessions
+    const sessions = await UserAnalytics.find(query)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log(`Returning ${sessions.length} total sessions`);
+    res.json(sessions);
+  } catch (err) {
+    console.error('GET /sessions error:', err);
+    res.status(500).json({ error: 'server error' });
+  }
+});
 
 // Fetch all user sessions (admin)
 router.get('/sessions', requireAdmin, async (req, res) => {
@@ -171,18 +205,18 @@ router.get('/', requireAdmin, async (req, res) => {
     const q = {};
     if (req.query.completed) q.completed = req.query.completed === 'true';
     const docs = await UserAnalytics.find(q).sort({ createdAt: -1 }).limit(1000);
-    
+
     // Calculate aggregated analytics
     const totalUsers = docs.length;
     const completedSessions = docs.filter(s => s.completed === true);
     const totalCompletedQuizzes = completedSessions.length;
     const totalIncompletedQuizzes = totalUsers - totalCompletedQuizzes;
-    
+
     // Calculate average completion time from completed sessions
     const completionTimes = completedSessions
       .map(s => s.timeSpent || 0)
       .filter(time => time > 0);
-    const averageCompletionTime = completionTimes.length > 0 
+    const averageCompletionTime = completionTimes.length > 0
       ? Math.floor(completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length)
       : 0;
 
@@ -205,9 +239,9 @@ router.get('/', requireAdmin, async (req, res) => {
 
     // Referrer stats
     const referrerStats = docs.reduce((acc, s) => {
-      const source = s.referrer ? 
-        (s.referrer.includes('google') ? 'Google' : 
-         s.referrer.includes('facebook') || s.referrer.includes('twitter') ? 'Social Media' : 'Other') 
+      const source = s.referrer ?
+        (s.referrer.includes('google') ? 'Google' :
+          s.referrer.includes('facebook') || s.referrer.includes('twitter') ? 'Social Media' : 'Other')
         : 'Direct';
       acc[source] = (acc[source] || 0) + 1;
       return acc;
@@ -216,10 +250,10 @@ router.get('/', requireAdmin, async (req, res) => {
     // Ideology distribution (calculate from quiz results)
     const ideologyDistribution = [];
     const figurePopularity = [];
-    
+
     // Calculate from completed quizzes with results
     const completedWithResults = completedSessions.filter(s => s.quizResult?.resultData?.matchedIdeology);
-    
+
     if (completedWithResults.length > 0) {
       // Group by ideology
       const ideologyGroups = completedWithResults.reduce((acc, session) => {
@@ -277,7 +311,7 @@ router.get('/', requireAdmin, async (req, res) => {
       Object.values(figureGroups).forEach(group => {
         figurePopularity.push({
           ...group,
-          averageSimilarity: group.similarities.length > 0 
+          averageSimilarity: group.similarities.length > 0
             ? group.similarities.reduce((a, b) => a + b, 0) / group.similarities.length
             : 0
         });
@@ -286,6 +320,22 @@ router.get('/', requireAdmin, async (req, res) => {
       // Sort by match count
       figurePopularity.sort((a, b) => b.matchCount - a.matchCount);
     }
+
+    // Calculate feedback stats - BEFORE THIS WAS HARDCODED
+    const feedbackSessions = completedSessions.filter(s => {
+      // Check both possible locations for feedback
+      const hasFeedback = s.quizResult?.feedbackGiven?.rating > 0;
+      console.log(`Session ${s.sessionId}: hasFeedback=${hasFeedback}`, s.quizResult?.feedbackGiven);
+      return hasFeedback;
+    });
+
+    const averageFeedbackRating = feedbackSessions.length > 0
+      ? feedbackSessions.reduce((acc, s) => acc + s.quizResult.feedbackGiven.rating, 0) / feedbackSessions.length
+      : 0;
+
+    const feedbackCount = feedbackSessions.length;
+
+    console.log(`📊 Feedback stats: ${feedbackCount} responses, avg rating: ${averageFeedbackRating}`);
 
     const analytics = {
       totalUsers,
@@ -304,8 +354,8 @@ router.get('/', requireAdmin, async (req, res) => {
       referrerStats,
       peakUsageHours: Array.from({ length: 24 }, (_, i) => ({ hour: i, count: Math.floor(Math.random() * 10) + 1 })),
       userRetentionRate: 0.5, // Simplified
-      averageFeedbackRating: 4.0, // Simplified
-      feedbackCount: 0
+      averageFeedbackRating,  // ← Now uses real data
+      feedbackCount
     };
 
     res.json(analytics);
@@ -319,7 +369,7 @@ router.get('/', requireAdmin, async (req, res) => {
 router.post('/export', requireAdmin, async (req, res) => {
   try {
     const docs = await UserAnalytics.find({}).lean();
-    const fields = ['sessionId','id','userName','startTime','endTime','completed','timeSpent'];
+    const fields = ['sessionId', 'id', 'userName', 'startTime', 'endTime', 'completed', 'timeSpent'];
     const { Parser } = require('json2csv');
     const parser = new Parser({ fields });
     const csv = parser.parse(docs);

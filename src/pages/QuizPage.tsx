@@ -20,7 +20,7 @@ const QuizPage = () => {
   const { userName } = useUser();
 
   // ✅ include trackQuizCompletion here
-  const { initializeSession, trackQuestionAnswer, trackPageView, trackQuizCompletion } =
+  const { sessionId, initializeSession, trackQuestionAnswer, trackPageView, trackQuizCompletion } =
     useAnalytics();
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -38,10 +38,11 @@ const QuizPage = () => {
 
   useEffect(() => {
     if (userName) {
+      sessionStorage.setItem('currentSessionId', sessionId);
       initializeSession(userName);
     }
     trackPageView("quiz");
-  }, [userName, initializeSession, trackPageView]);
+  }, [userName, initializeSession, trackPageView, sessionId]);
 
   useEffect(() => {
     setSelectedAnswer(null);

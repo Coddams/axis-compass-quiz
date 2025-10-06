@@ -89,20 +89,38 @@ const QuizStatistics = () => {
   const [questionStats, setQuestionStats] = useState<QuestionStatistics[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchQuestionStats = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE}/analytics/sessions?api_key=${API_KEY}`);
-      const sessions = await response.json();
-      const stats = generateQuestionStats(sessions || []);
-      setQuestionStats(stats);
-    } catch (error) {
-      console.error('Failed to fetch question stats:', error);
-      setQuestionStats([]);
-    } finally {
-      setLoading(false);
+const fetchQuestionStats = async () => {
+  setLoading(true);
+  try {
+    // Use the new /sessions endpoint for raw data
+    const response = await fetch(`${API_BASE}/sessions?api_key=${API_KEY}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-  };
+    
+    const sessions = await response.json();
+    
+    console.log('Fetched sessions:', sessions.length);
+    console.log('Sample session:', sessions[0]);
+    
+    if (!Array.isArray(sessions)) {
+      console.error('Expected array of sessions, got:', typeof sessions);
+      setQuestionStats([]);
+      return;
+    }
+    
+    const stats = generateQuestionStats(sessions);
+    console.log('Generated stats for questions:', stats.length);
+    
+    setQuestionStats(stats);
+  } catch (error) {
+    console.error('Failed to fetch question stats:', error);
+    setQuestionStats([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchQuestionStats();

@@ -13,6 +13,11 @@ const QuizResultSchema = new Schema({
   score: Number,
   resultData: Schema.Types.Mixed,
   completedAt: Date,
+  feedbackGiven: {
+    rating: Number,
+    comment: String,
+    timestamp: Date
+  }
 });
 
 const UserAnalyticsSchema = new Schema({

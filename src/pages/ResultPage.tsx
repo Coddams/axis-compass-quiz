@@ -7,17 +7,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import ThreeAxisVisualization from "@/components/ThreeAxisVisualization";
 import { calculateResult, QuizResult } from "@/data/quizData";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const ResultPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { trackFeedback } = useAnalytics();
   const [result, setResult] = useState<QuizResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState("");
   const [rating, setRating] = useState(0);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Get the sessionId from storage
+    const storedSessionId = sessionStorage.getItem('currentSessionId');
+    setCurrentSessionId(storedSessionId);
+
     const answersJson = sessionStorage.getItem("quizAnswers");
     if (!answersJson) {
       navigate("/");
@@ -28,7 +35,6 @@ const ResultPage = () => {
       const answers = JSON.parse(answersJson);
       const calculatedResult = calculateResult(answers);
       setResult(calculatedResult);
-
       sessionStorage.setItem("quizResult", JSON.stringify(calculatedResult));
     } catch (error) {
       console.error("Error calculating result:", error);
@@ -49,25 +55,25 @@ const ResultPage = () => {
     );
   }
 
- const getQuadrantName = (economic: number, social: number, foreign: number) => {
-  let base = "";
+  const getQuadrantName = (economic: number, social: number, foreign: number) => {
+    let base = "";
 
-  if (economic < 0 && social > 0) base = "Libertarian Left";
-  else if (economic > 0 && social > 0) base = "Libertarian Right";
-  else if (economic < 0 && social < 0) base = "Authoritarian Left";
-  else if (economic > 0 && social < 0) base = "Authoritarian Right";
-  else base = "Centrist";
+    if (economic < 0 && social > 0) base = "Libertarian Left";
+    else if (economic > 0 && social > 0) base = "Libertarian Right";
+    else if (economic < 0 && social < 0) base = "Authoritarian Left";
+    else if (economic > 0 && social < 0) base = "Authoritarian Right";
+    else base = "Centrist";
 
-  let foreignTag = "";
-  if (foreign > 0) foreignTag = "Interventionist";
-  else if (foreign < 0) foreignTag = "Isolationist";
-  else foreignTag = "Neutralist";
+    let foreignTag = "";
+    if (foreign > 0) foreignTag = "Interventionist";
+    else if (foreign < 0) foreignTag = "Isolationist";
+    else foreignTag = "Neutralist";
 
-  return `${base} – ${foreignTag}`;
-};
+    return `${base} – ${foreignTag}`;
+  };
 
 
-const quadrant = getQuadrantName(result.economic, result.social, result.foreign);
+  const quadrant = getQuadrantName(result.economic, result.social, result.foreign);
 
   const handleFeedbackSubmit = async () => {
     if (!feedback.trim() && rating === 0) {
@@ -79,17 +85,26 @@ const quadrant = getQuadrantName(result.economic, result.social, result.foreign)
       return;
     }
 
+    if (!currentSessionId) {
+      toast({
+        title: "Session not found",
+        description: "Unable to submit feedback. Please try taking the quiz again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      // Here you would typically send the feedback to your backend
-      // For now, we'll just simulate a successful submission
-      console.log("Feedback submitted:", { feedback, rating, result });
-      
+      console.log('📊 Submitting feedback for sessionId:', currentSessionId);
+      await trackFeedback(rating, feedback || undefined, currentSessionId);
+
       setFeedbackSubmitted(true);
       toast({
         title: "Thank you for your feedback!",
         description: "Your input helps us improve the Political Compass experience.",
       });
     } catch (error) {
+      console.error("Error submitting feedback:", error);
       toast({
         title: "Error submitting feedback",
         description: "Please try again later.",
@@ -97,7 +112,6 @@ const quadrant = getQuadrantName(result.economic, result.social, result.foreign)
       });
     }
   };
-
   return (
     <div className="min-h-screen bg-gradient-hero px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-12">
@@ -233,11 +247,10 @@ const quadrant = getQuadrantName(result.economic, result.social, result.foreign)
                           className="p-1 hover:scale-110 transition-transform"
                         >
                           <Star
-                            className={`w-8 h-8 ${
-                              star <= rating
-                                ? "fill-primary text-primary"
-                                : "text-muted-foreground hover:text-primary"
-                            }`}
+                            className={`w-8 h-8 ${star <= rating
+                              ? "fill-primary text-primary"
+                              : "text-muted-foreground hover:text-primary"
+                              }`}
                           />
                         </button>
                       ))}

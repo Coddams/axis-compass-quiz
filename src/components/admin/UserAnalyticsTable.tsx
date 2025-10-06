@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Search, Eye, RefreshCw, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Search, Eye, RefreshCw, CheckCircle, XCircle, Clock, Star } from 'lucide-react';
 import { UserAnalytics } from '@/types/analytics';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
@@ -33,11 +33,11 @@ const UserAnalyticsTable = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/analytics?api_key=${API_KEY}`);
+      const response = await fetch(`${API_BASE}/?api_key=${API_KEY}`);
       const data = await response.json();
-      
+
       // Fetch individual user sessions
-      const sessionsResponse = await fetch(`${API_BASE}/analytics/sessions?api_key=${API_KEY}`);
+      const sessionsResponse = await fetch(`${API_BASE}/sessions?api_key=${API_KEY}`);
       const sessionsData = await sessionsResponse.json();
       setUsers(sessionsData || []);
     } catch (error) {
@@ -52,7 +52,7 @@ const UserAnalyticsTable = () => {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter(user => 
+  const filteredUsers = users.filter(user =>
     user.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.sessionId?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -83,9 +83,9 @@ const UserAnalyticsTable = () => {
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold">User Sessions</h3>
         <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={fetchUsers}
             disabled={loading}
           >
@@ -153,8 +153,8 @@ const UserAnalyticsTable = () => {
                     <div className="flex items-center gap-2">
                       <span className="text-sm">{user.currentQuestionIndex}/{user.totalQuestions}</span>
                       <div className="w-20 bg-muted rounded-full h-2">
-                        <div 
-                          className="bg-primary h-2 rounded-full" 
+                        <div
+                          className="bg-primary h-2 rounded-full"
                           style={{ width: `${(user.currentQuestionIndex / user.totalQuestions) * 100}%` }}
                         />
                       </div>
@@ -201,6 +201,94 @@ const UserAnalyticsTable = () => {
                                 <div><span className="text-muted-foreground">Total Time:</span> {formatTime(user.timeSpent)}</div>
                               </div>
                             </div>
+                            {user.quizResult?.feedbackGiven && (
+                              <div>
+                                <h4 className="font-semibold mb-2">User Feedback</h4>
+                                <div className="space-y-2 text-sm">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-muted-foreground">Rating:</span>
+                                    <div className="flex gap-1">
+                                      {Array.from({ length: 5 }).map((_, i) => (
+                                        <Star
+                                          key={i}
+                                          className={`w-4 h-4 ${i < user.quizResult.feedbackGiven.rating
+                                              ? 'fill-primary text-primary'
+                                              : 'text-muted-foreground'
+                                            }`}
+                                        />
+                                      ))}
+                                    </div>
+                                    <span className="font-medium">
+                                      {user.quizResult.feedbackGiven.rating}/5
+                                    </span>
+                                  </div>
+                                  {user.quizResult.feedbackGiven.comment && (
+                                    <div className="p-3 bg-muted/30 rounded-lg">
+                                      <span className="text-muted-foreground">Comment:</span>
+                                      <p className="mt-1">{user.quizResult.feedbackGiven.comment}</p>
+                                    </div>
+                                  )}
+                                  <div className="text-xs text-muted-foreground">
+                                    Submitted: {new Date(user.quizResult.feedbackGiven.timestamp).toLocaleString()}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            <div>
+                              <h4 className="font-semibold mb-2">Time Analysis</h4>
+                              <div className="space-y-1 text-sm">
+                                <div>
+                                  <span className="text-muted-foreground">Avg per Question:</span>{' '}
+                                  {user.currentQuestionIndex > 0
+                                    ? formatTime(Math.floor(user.timeSpent / user.currentQuestionIndex))
+                                    : 'N/A'}
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Completion Speed:</span>{' '}
+                                  {user.completed && user.timeSpent < 180 ? (
+                                    <Badge variant="outline" className="text-xs">Fast</Badge>
+                                  ) : user.completed && user.timeSpent > 600 ? (
+                                    <Badge variant="outline" className="text-xs">Thorough</Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="text-xs">Normal</Badge>
+                                  )}
+                                </div>
+                                {user.questionEvents && user.questionEvents.length > 0 && (
+                                  <div>
+                                    <span className="text-muted-foreground">Fastest Answer:</span>{' '}
+                                    {Math.min(...user.questionEvents.map(e => e.timeSpent))}s
+                                  </div>
+                                )}
+                                {user.questionEvents && user.questionEvents.length > 0 && (
+                                  <div>
+                                    <span className="text-muted-foreground">Slowest Answer:</span>{' '}
+                                    {Math.max(...user.questionEvents.map(e => e.timeSpent))}s
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold mb-2">Context</h4>
+                              <div className="space-y-1 text-sm">
+                                <div>
+                                  <span className="text-muted-foreground">IP Address:</span>{' '}
+                                  {user.ipAddress || 'Unknown'}
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Time of Day:</span>{' '}
+                                  {new Date(user.startTime).toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Day:</span>{' '}
+                                  {new Date(user.startTime).toLocaleDateString([], {
+                                    weekday: 'long'
+                                  })}
+                                </div>
+                              </div>
+                            </div>
                             <div>
                               <h4 className="font-semibold mb-2">Device Info</h4>
                               <div className="space-y-1 text-sm">
@@ -212,7 +300,7 @@ const UserAnalyticsTable = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           {user.quizResult && (
                             <div>
                               <h4 className="font-semibold mb-2">Quiz Results</h4>
@@ -233,7 +321,7 @@ const UserAnalyticsTable = () => {
                               </div>
                             </div>
                           )}
-                          
+
                           {user.questionEvents && user.questionEvents.length > 0 && (
                             <div>
                               <h4 className="font-semibold mb-2">Question History ({user.questionEvents.length} answered)</h4>

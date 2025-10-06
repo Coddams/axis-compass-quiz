@@ -7,12 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { useAdminAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsFilters } from '@/types/analytics';
-import { 
-  Users, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  TrendingUp, 
+import {
+  Users,
+  CheckCircle,
+  XCircle,
+  Clock,
+  TrendingUp,
   Download,
   Smartphone,
   Monitor,
@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import UserAnalyticsTable from './UserAnalyticsTable';
 import QuizStatistics from './QuizStatistics';
+import IdeologyDistributionTab from './IdeologyDistributionTab';
 
 const AnalyticsDashboard = () => {
   const [filters, setFilters] = useState<AnalyticsFilters>({
@@ -58,7 +59,7 @@ const AnalyticsDashboard = () => {
 
   if (!analytics) return null;
 
-  const completionRate = analytics.totalUsers > 0 
+  const completionRate = analytics.totalUsers > 0
     ? ((analytics.totalCompletedQuizzes / analytics.totalUsers) * 100).toFixed(1)
     : '0.0';
 
@@ -71,12 +72,12 @@ const AnalyticsDashboard = () => {
             date={filters.dateRange}
             onDateChange={(range) => setFilters({ ...filters, dateRange: range })}
           />
-          
+
           <Select
             value={filters.deviceType || 'all'}
-            onValueChange={(value) => setFilters({ 
-              ...filters, 
-              deviceType: value === 'all' ? undefined : value as 'mobile' | 'desktop' 
+            onValueChange={(value) => setFilters({
+              ...filters,
+              deviceType: value === 'all' ? undefined : value as 'mobile' | 'desktop'
             })}
           >
             <SelectTrigger className="w-32">
@@ -88,12 +89,12 @@ const AnalyticsDashboard = () => {
               <SelectItem value="desktop">Desktop</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <Button onClick={refetch} variant="outline" size="sm">
             Refresh
           </Button>
         </div>
-        
+
         <div className="flex gap-2">
           <Button onClick={() => handleExport('json')} variant="outline" size="sm">
             <Download className="w-4 h-4 mr-2" />
@@ -164,8 +165,8 @@ const AnalyticsDashboard = () => {
               </span>
               <div className="flex items-center gap-2">
                 <div className="w-32 bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full" 
+                  <div
+                    className="bg-primary h-2 rounded-full"
                     style={{ width: `${(analytics.deviceStats.mobile / analytics.totalUsers) * 100}%` }}
                   />
                 </div>
@@ -179,8 +180,8 @@ const AnalyticsDashboard = () => {
               </span>
               <div className="flex items-center gap-2">
                 <div className="w-32 bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-secondary h-2 rounded-full" 
+                  <div
+                    className="bg-secondary h-2 rounded-full"
                     style={{ width: `${(analytics.deviceStats.desktop / analytics.totalUsers) * 100}%` }}
                   />
                 </div>
@@ -201,8 +202,8 @@ const AnalyticsDashboard = () => {
                 <span>{source}</span>
                 <div className="flex items-center gap-2">
                   <div className="w-32 bg-muted rounded-full h-2">
-                    <div 
-                      className="bg-accent h-2 rounded-full" 
+                    <div
+                      className="bg-accent h-2 rounded-full"
                       style={{ width: `${(count / analytics.totalUsers) * 100}%` }}
                     />
                   </div>
@@ -221,6 +222,7 @@ const AnalyticsDashboard = () => {
           <TabsTrigger value="questions">Question Analytics</TabsTrigger>
           <TabsTrigger value="ideologies">Ideology Distribution</TabsTrigger>
           <TabsTrigger value="figures">Figure Popularity</TabsTrigger>
+          <TabsTrigger value="feedback">User Feedback</TabsTrigger> {/* ← ADD THIS */}
         </TabsList>
 
         <TabsContent value="users">
@@ -232,37 +234,66 @@ const AnalyticsDashboard = () => {
         </TabsContent>
 
         <TabsContent value="ideologies">
+          <IdeologyDistributionTab analytics={analytics} />
+        </TabsContent>
+
+        <TabsContent value="feedback">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Ideology Distribution</h3>
-            {analytics.ideologyDistribution.length > 0 ? (
-              <div className="space-y-4">
-                {analytics.ideologyDistribution.map((ideology) => (
-                  <div key={ideology.ideologyId} className="border border-border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">{ideology.ideologyName}</h4>
-                      <Badge variant="outline">{ideology.count} users ({ideology.percentage.toFixed(1)}%)</Badge>
+            <h3 className="text-lg font-semibold mb-4">User Feedback</h3>
+
+            {analytics.feedbackCount > 0 ? (
+              <div className="space-y-6">
+                {/* Summary Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card className="p-4">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-primary">
+                        {analytics.averageFeedbackRating.toFixed(1)}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Average Rating</div>
+                      <div className="flex justify-center mt-2">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${i < Math.round(analytics.averageFeedbackRating)
+                                ? 'fill-primary text-primary'
+                                : 'text-muted-foreground'
+                              }`}
+                          />
+                        ))}
+                      </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Economic:</span>
-                        <span className="ml-1 font-mono">{ideology.averageVector.economic.toFixed(2)}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Social:</span>
-                        <span className="ml-1 font-mono">{ideology.averageVector.social.toFixed(2)}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Foreign:</span>
-                        <span className="ml-1 font-mono">{ideology.averageVector.foreign.toFixed(2)}</span>
-                      </div>
+                  </Card>
+
+                  <Card className="p-4">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold">{analytics.feedbackCount}</div>
+                      <div className="text-sm text-muted-foreground">Total Responses</div>
                     </div>
-                  </div>
-                ))}
+                  </Card>
+
+                  <Card className="p-4">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold">
+                        {((analytics.feedbackCount / analytics.totalCompletedQuizzes) * 100).toFixed(1)}%
+                      </div>
+                      <div className="text-sm text-muted-foreground">Response Rate</div>
+                    </div>
+                  </Card>
+                </div>
+
+                {/* Note about detailed feedback */}
+                <div className="p-4 bg-muted/30 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Note:</strong> Individual feedback comments are stored in the database.
+                    To view detailed comments, check the User Data tab and click "Details" on any completed session with feedback.
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                <p>No completed quizzes with ideology data yet.</p>
-                <p className="text-sm mt-2">Ideology distribution will appear after users complete the quiz.</p>
+                <p>No feedback submissions yet.</p>
+                <p className="text-sm mt-2">Feedback will appear after users rate their experience.</p>
               </div>
             )}
           </Card>
