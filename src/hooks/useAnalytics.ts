@@ -371,7 +371,7 @@ export const useAnalytics = () => {
     console.log('📊 trackFeedback called with sessionId:', targetSessionId);
 
     // Build the update payload directly
-    const updatePayload = {
+    const updatePayload: any = {
       quizResult: {
         feedbackGiven: feedback
       }

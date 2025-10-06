@@ -13,10 +13,11 @@ const LandingPage = () => {
   const [inputName, setInputName] = useState(userName);
 
   const handleStartQuiz = () => {
-    if (inputName.trim()) {
-      setUserName(inputName.trim());
+    const trimmedName = inputName.trim();
+    if (trimmedName) {
+      setUserName(trimmedName);
+      navigate("/quiz");
     }
-    navigate("/quiz");
   };
 
   return (
@@ -76,10 +77,15 @@ const LandingPage = () => {
             <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Enter your name (optional)"
+              placeholder="Enter your name"
               value={inputName}
               onChange={(e) => setInputName(e.target.value)}
               className="pl-10 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:ring-primary focus:border-primary"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && inputName.trim()) {
+                  handleStartQuiz();
+                }
+              }}
             />
           </div>
         </div>
@@ -88,7 +94,8 @@ const LandingPage = () => {
         <div className="pt-4">
           <Button 
             onClick={handleStartQuiz}
-            className="btn-hero group"
+            disabled={!inputName.trim()}
+            className="btn-hero group disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Start the Quiz
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
