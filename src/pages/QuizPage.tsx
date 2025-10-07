@@ -41,6 +41,10 @@ const QuizPage = () => {
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
   const [quizStartTime] = useState<number>(Date.now()); // to track total duration
 
+  const [firstInteractionTime, setFirstInteractionTime] = useState<number | null>(null);
+  const [initialAnswer, setInitialAnswer] = useState<string | null>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
   const question = questions[currentQuestion];
   const isLastQuestion = currentQuestion === questions.length - 1;
 
@@ -55,14 +59,63 @@ const QuizPage = () => {
   useEffect(() => {
     setSelectedAnswer(null);
     setQuestionStartTime(Date.now());
+    setFirstInteractionTime(null);
+    setInitialAnswer(null);
+    setHasInteracted(false);
   }, [currentQuestion]);
+
+  // Track first interaction (hesitation time)
+  const handleFirstInteraction = () => {
+    if (!hasInteracted) {
+      setFirstInteractionTime(Date.now());
+      setHasInteracted(true);
+    }
+  };
+
+  // Track when user hovers over an answer (to detect changes)
+  const handleAnswerHover = (answerId: string) => {
+    if (!hasInteracted) {
+      setFirstInteractionTime(Date.now());
+      setHasInteracted(true);
+    }
+
+    // Track if this is their first considered answer
+    if (!initialAnswer && !selectedAnswer) {
+      setInitialAnswer(answerId);
+    }
+  };
 
   const handleAnswer = (answer: { id: string; text: string; vector: [number, number, number] }) => {
     setSelectedAnswer(answer);
 
-    const timeSpentOnQuestion = Math.floor((Date.now() - questionStartTime) / 1000);
+    const now = Date.now();
+    const timeSpentOnQuestion = Math.floor((now - questionStartTime) / 1000);
 
-    trackQuestionAnswer(question, currentQuestion, answer, timeSpentOnQuestion);
+    // Calculate hesitation time (time until first interaction)
+    const hesitationTime = firstInteractionTime
+      ? Math.floor((firstInteractionTime - questionStartTime) / 1000)
+      : 0;
+
+    // Detect if answer was changed
+    const changedAnswer = initialAnswer ? initialAnswer !== answer.id : false;
+
+    console.log('📊 Interaction metrics:', {
+      timeSpentOnQuestion,
+      hesitationTime,
+      changedAnswer,
+      initialAnswer,
+      finalAnswer: answer.id
+    });
+
+    // Pass the tracking data
+    trackQuestionAnswer(
+      question,
+      currentQuestion,
+      answer,
+      timeSpentOnQuestion,
+      hesitationTime,
+      changedAnswer
+    );
 
     setTimeout(() => {
       const newAnswers = [...answers];
@@ -74,17 +127,13 @@ const QuizPage = () => {
       setAnswers(newAnswers);
 
       if (isLastQuestion) {
-        // Save answers for result page
         sessionStorage.setItem("quizAnswers", JSON.stringify(newAnswers));
-
-        // ✅ Compute result from answers (ideology, top figures, etc.)
         const result = calculateResult(newAnswers);
         trackQuizCompletion(
-          result, 
+          result,
           Math.floor((Date.now() - quizStartTime) / 1000),
           false
         );
-
         navigate("/result");
       } else {
         setCurrentQuestion(currentQuestion + 1);
@@ -132,7 +181,7 @@ const QuizPage = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
             {userName ? `${userName}'s Political Compass Quiz` : "Political Compass Quiz"}
           </h1>
-          
+
           {/* Methodology CTA */}
           <Dialog>
             <DialogTrigger asChild>
@@ -158,7 +207,7 @@ const QuizPage = () => {
               </DialogHeader>
             </DialogContent>
           </Dialog>
-          
+
           <ProgressBar current={currentQuestion + 1} total={questions.length} />
         </div>
 
@@ -169,6 +218,8 @@ const QuizPage = () => {
             answers={question.answers}
             onAnswer={handleAnswer}
             selectedAnswer={selectedAnswer}
+            onFirstInteraction={handleFirstInteraction}
+            onAnswerHover={handleAnswerHover}
           />
         </div>
 

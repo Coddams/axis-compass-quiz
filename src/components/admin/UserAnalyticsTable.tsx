@@ -212,8 +212,8 @@ const UserAnalyticsTable = () => {
                                         <Star
                                           key={i}
                                           className={`w-4 h-4 ${i < user.quizResult.feedbackGiven.rating
-                                              ? 'fill-primary text-primary'
-                                              : 'text-muted-foreground'
+                                            ? 'fill-primary text-primary'
+                                            : 'text-muted-foreground'
                                             }`}
                                         />
                                       ))}
@@ -327,9 +327,33 @@ const UserAnalyticsTable = () => {
                               <h4 className="font-semibold mb-2">Question History ({user.questionEvents.length} answered)</h4>
                               <div className="max-h-64 overflow-y-auto space-y-2">
                                 {user.questionEvents.map((event, idx) => (
-                                  <div key={idx} className="p-2 bg-muted/30 rounded text-xs">
-                                    <div><span className="font-medium">Q{idx + 1}:</span> {event.questionId}</div>
-                                    <div><span className="text-muted-foreground">Time:</span> {event.timeSpent}s</div>
+                                  <div key={idx} className="p-3 bg-muted/30 rounded text-sm">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="font-medium">Q{idx + 1}: {event.questionId}</span>
+                                      <div className="flex gap-2">
+                                        {event.changedAnswer && (
+                                          <Badge variant="outline" className="text-xs">
+                                            Changed
+                                          </Badge>
+                                        )}
+                                        {event.hesitationTime && event.hesitationTime > 3 && (
+                                          <Badge variant="secondary" className="text-xs">
+                                            Hesitated {event.hesitationTime}s
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground space-y-1">
+                                      <div>Time spent: {event.timeSpent}s</div>
+                                      {event.hesitationTime !== undefined && (
+                                        <div>First interaction: {event.hesitationTime}s</div>
+                                      )}
+                                      {event.selectedAnswer && (
+                                        <div className="mt-1 p-2 bg-muted rounded">
+                                          Selected: {event.selectedAnswer.text}
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
                                 ))}
                               </div>

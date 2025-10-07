@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { CheckCircle2, ThumbsUp, ThumbsDown } from "lucide-react";
 
-// Canonical answer shape
 interface Answer {
   id: string;
   text: string;
@@ -14,18 +13,34 @@ interface QuestionCardProps {
   answers: Answer[];
   onAnswer: (answer: Answer) => void;
   selectedAnswer?: Answer | null;
+  onFirstInteraction?: () => void;
+  onAnswerHover?: (answerId: string) => void;
 }
 
-const QuestionCard = ({ question, answers, onAnswer, selectedAnswer }: QuestionCardProps) => {
+const QuestionCard = ({
+  question,
+  answers,
+  onAnswer,
+  selectedAnswer,
+  onFirstInteraction,
+  onAnswerHover
+}: QuestionCardProps) => {
   const [previewedAnswer, setPreviewedAnswer] = useState<Answer | null>(null);
 
   const handleAnswerClick = (answer: Answer) => {
     // If this answer is already previewed, confirm it
-    if (previewedAnswer?.id === answer.id) {
+    if (onFirstInteraction && previewedAnswer?.id === answer.id) {
       onAnswer(answer);
+      onFirstInteraction();
     } else {
       // First click - show preview
       setPreviewedAnswer(answer);
+    }
+  };
+
+  const handleAnswerHover = (answerId: string) => {
+    if (onAnswerHover) {
+      onAnswerHover(answerId);
     }
   };
 
@@ -47,6 +62,7 @@ const QuestionCard = ({ question, answers, onAnswer, selectedAnswer }: QuestionC
             <div key={answer.id} className="space-y-2">
               <button
                 onClick={() => handleAnswerClick(answer)}
+                onMouseEnter={() => handleAnswerHover(answer.id)}
                 className={`
                   btn-answer w-full relative
                   ${isSelected ? "selected" : ""}

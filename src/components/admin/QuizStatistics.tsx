@@ -13,7 +13,7 @@ const API_KEY = import.meta.env.VITE_ADMIN_API_KEY || 'CHANGE_ME';
 // Generate real question stats from database
 const generateQuestionStats = (sessions: any[]): QuestionStatistics[] => {
   const questionMap: Record<string, QuestionStatistics> = {};
-  
+
   // Initialize from questions config
   questionsData.forEach((q: any) => {
     questionMap[q.id] = {
@@ -34,6 +34,7 @@ const generateQuestionStats = (sessions: any[]): QuestionStatistics[] => {
 
   // Aggregate from sessions
   let totalTimePerQuestion: Record<string, number[]> = {};
+  let hesitationPerQuestion: Record<string, number[]> = {};
   let changedAnswers = 0;
   let totalAnswers = 0;
 
@@ -43,7 +44,7 @@ const generateQuestionStats = (sessions: any[]): QuestionStatistics[] => {
         const qId = event.questionId;
         if (questionMap[qId]) {
           questionMap[qId].totalResponses++;
-          
+
           // Count answer
           const answerIdx = questionMap[qId].answerDistribution.findIndex(
             a => a.answerId === event.selectedAnswer?.id
@@ -55,6 +56,11 @@ const generateQuestionStats = (sessions: any[]): QuestionStatistics[] => {
           // Track time
           if (!totalTimePerQuestion[qId]) totalTimePerQuestion[qId] = [];
           totalTimePerQuestion[qId].push(event.timeSpent || 0);
+
+          if (event.hesitationTime !== undefined) {
+            if (!hesitationPerQuestion[qId]) hesitationPerQuestion[qId] = [];
+            hesitationPerQuestion[qId].push(event.hesitationTime);
+          }
 
           // Track changes
           if (event.changedAnswer) changedAnswers++;
@@ -72,10 +78,15 @@ const generateQuestionStats = (sessions: any[]): QuestionStatistics[] => {
       });
 
       const times = totalTimePerQuestion[q.questionId] || [];
-      q.averageTimeSpent = times.length > 0 
-        ? times.reduce((a, b) => a + b, 0) / times.length 
+      q.averageTimeSpent = times.length > 0
+        ? times.reduce((a, b) => a + b, 0) / times.length
         : 0;
     }
+    const hesitations = hesitationPerQuestion[q.questionId] || [];
+    const avgHesitation = hesitations.length > 0
+      ? hesitations.reduce((a, b) => a + b, 0) / hesitations.length
+      : 0;
+
     q.changeAnswerRate = totalAnswers > 0 ? changedAnswers / totalAnswers : 0;
   });
 
@@ -89,38 +100,38 @@ const QuizStatistics = () => {
   const [questionStats, setQuestionStats] = useState<QuestionStatistics[]>([]);
   const [loading, setLoading] = useState(true);
 
-const fetchQuestionStats = async () => {
-  setLoading(true);
-  try {
-    // Use the new /sessions endpoint for raw data
-    const response = await fetch(`${API_BASE}/sessions?api_key=${API_KEY}`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    const sessions = await response.json();
-    
-    console.log('Fetched sessions:', sessions.length);
-    console.log('Sample session:', sessions[0]);
-    
-    if (!Array.isArray(sessions)) {
-      console.error('Expected array of sessions, got:', typeof sessions);
+  const fetchQuestionStats = async () => {
+    setLoading(true);
+    try {
+      // Use the new /sessions endpoint for raw data
+      const response = await fetch(`${API_BASE}/sessions?api_key=${API_KEY}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const sessions = await response.json();
+
+      console.log('Fetched sessions:', sessions.length);
+      console.log('Sample session:', sessions[0]);
+
+      if (!Array.isArray(sessions)) {
+        console.error('Expected array of sessions, got:', typeof sessions);
+        setQuestionStats([]);
+        return;
+      }
+
+      const stats = generateQuestionStats(sessions);
+      console.log('Generated stats for questions:', stats.length);
+
+      setQuestionStats(stats);
+    } catch (error) {
+      console.error('Failed to fetch question stats:', error);
       setQuestionStats([]);
-      return;
+    } finally {
+      setLoading(false);
     }
-    
-    const stats = generateQuestionStats(sessions);
-    console.log('Generated stats for questions:', stats.length);
-    
-    setQuestionStats(stats);
-  } catch (error) {
-    console.error('Failed to fetch question stats:', error);
-    setQuestionStats([]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchQuestionStats();
@@ -133,7 +144,7 @@ const fetchQuestionStats = async () => {
   const getEngagementLevel = (timeSpent: number, changeRate: number) => {
     const avgTime = 35; // baseline average
     const avgChangeRate = 0.2; // baseline change rate
-    
+
     if (timeSpent > avgTime * 1.2 && changeRate > avgChangeRate * 1.2) {
       return { level: 'High', color: 'bg-green-500', description: 'Users spend significant time and frequently reconsider' };
     } else if (timeSpent < avgTime * 0.8 && changeRate < avgChangeRate * 0.8) {
@@ -199,13 +210,13 @@ const fetchQuestionStats = async () => {
         <div className="space-y-4">
           {questionStats.map((question, index) => {
             const engagement = getEngagementLevel(question.averageTimeSpent, question.changeAnswerRate);
-            const mostPopularAnswer = question.answerDistribution.reduce((prev, current) => 
+            const mostPopularAnswer = question.answerDistribution.reduce((prev, current) =>
               prev.percentage > current.percentage ? prev : current
             );
-            
+
             return (
-              <div 
-                key={question.questionId} 
+              <div
+                key={question.questionId}
                 className="border border-border rounded-lg p-4 cursor-pointer hover:border-primary/50 transition-colors"
                 onClick={() => setSelectedQuestion(selectedQuestion?.questionId === question.questionId ? null : question)}
               >
@@ -213,7 +224,7 @@ const fetchQuestionStats = async () => {
                   <div className="flex-1">
                     <h4 className="font-medium mb-2">Question {index + 1}</h4>
                     <p className="text-sm text-muted-foreground mb-3">{question.questionText}</p>
-                    
+
                     <div className="flex flex-wrap gap-4 text-xs">
                       <div className="flex items-center gap-1">
                         <span className="text-muted-foreground">Responses:</span>
@@ -234,7 +245,7 @@ const fetchQuestionStats = async () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="text-right">
                     <div className="text-sm">
                       <div className="font-medium">Most Popular:</div>
@@ -253,15 +264,15 @@ const fetchQuestionStats = async () => {
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={question.answerDistribution} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis 
-                              dataKey="answerId" 
+                            <XAxis
+                              dataKey="answerId"
                               tick={{ fontSize: 12 }}
                             />
-                            <YAxis 
+                            <YAxis
                               tick={{ fontSize: 12 }}
                               label={{ value: 'Responses', angle: -90, position: 'insideLeft' }}
                             />
-                            <Tooltip 
+                            <Tooltip
                               formatter={(value, name) => [value, 'Responses']}
                               labelFormatter={(label) => {
                                 const answer = question.answerDistribution.find(a => a.answerId === label);
