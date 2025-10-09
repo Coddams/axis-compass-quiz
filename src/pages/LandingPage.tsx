@@ -14,6 +14,15 @@ const LandingPage = () => {
   const [inputName, setInputName] = useState(userName);
   const [isLoading, setIsLoading] = useState(true);
 
+  // All images used on the landing page
+  const imagesToPreload = [
+    '/lovable-uploads/darkbrown.png',
+    '/lovable-uploads/20250909_1139_White Logo Transformation_remix_01k4q0shxzeq9aqzkxhnhw0mp3.png',
+    '/lovable-uploads/compass.jpg',
+    '/lovable-uploads/mlkPublic.png',
+    '/lovable-uploads/brown.png',
+  ];
+
   const handleStartQuiz = () => {
     const trimmedName = inputName.trim();
     if (trimmedName) {
@@ -23,7 +32,7 @@ const LandingPage = () => {
   };
 
   if (isLoading) {
-    return <LoadingScreen onComplete={() => setIsLoading(false)} />;
+    return <LoadingScreen onComplete={() => setIsLoading(false)} imagesToPreload={imagesToPreload} />;
   }
 
   return (

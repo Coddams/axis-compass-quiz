@@ -7,8 +7,42 @@ const welcomeTexts = [
   "Ready to discover where you stand?",
 ];
 
-const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
+interface LoadingScreenProps {
+  onComplete: () => void;
+  imagesToPreload?: string[];
+}
+
+const LoadingScreen = ({ onComplete, imagesToPreload = [] }: LoadingScreenProps) => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [timerComplete, setTimerComplete] = useState(false);
+
+  useEffect(() => {
+    // Preload images
+    if (imagesToPreload.length > 0) {
+      let loadedCount = 0;
+      const totalImages = imagesToPreload.length;
+
+      imagesToPreload.forEach((src) => {
+        const img = new Image();
+        img.onload = () => {
+          loadedCount++;
+          if (loadedCount === totalImages) {
+            setImagesLoaded(true);
+          }
+        };
+        img.onerror = () => {
+          loadedCount++;
+          if (loadedCount === totalImages) {
+            setImagesLoaded(true);
+          }
+        };
+        img.src = src;
+      });
+    } else {
+      setImagesLoaded(true);
+    }
+  }, [imagesToPreload]);
 
   useEffect(() => {
     // Cycle through texts every 3 seconds
@@ -18,14 +52,21 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
 
     // Complete loading after 30 seconds
     const loadingTimeout = setTimeout(() => {
-      onComplete();
+      setTimerComplete(true);
     }, 30000);
 
     return () => {
       clearInterval(textInterval);
       clearTimeout(loadingTimeout);
     };
-  }, [onComplete]);
+  }, []);
+
+  useEffect(() => {
+    // Only complete when both timer is done AND images are loaded
+    if (timerComplete && imagesLoaded) {
+      onComplete();
+    }
+  }, [timerComplete, imagesLoaded, onComplete]);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background">
