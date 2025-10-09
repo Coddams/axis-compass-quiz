@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useUser } from "@/contexts/UserContext";
-import TreesCard from "@/components/TreesCard"; 
+import TreesCard from "@/components/TreesCard";
+import LoadingScreen from "@/components/LoadingScreen";
 
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const { userName, setUserName } = useUser();
   const [inputName, setInputName] = useState(userName);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleStartQuiz = () => {
     const trimmedName = inputName.trim();
@@ -20,8 +22,12 @@ const LandingPage = () => {
     }
   };
 
+  if (isLoading) {
+    return <LoadingScreen onComplete={() => setIsLoading(false)} />;
+  }
+
   return (
-    <div 
+    <div
       className="min-h-screen flex items-center justify-center px-4 relative bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: `url('/lovable-uploads/darkbrown.png')` }}    >
       {/* Dark overlay */}
