@@ -116,8 +116,8 @@ const ThreeAxisVisualization = ({
         {/* Economic Axis */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-muted-foreground">Economic</span>
-            <span className="text-sm font-bold text-primary">{getEconomicLabel(animatedEconomic)}</span>
+            <span className="text-sm font-medium text-primary">Economic</span>
+            {/* <span className="text-sm font-bold text-primary">{getEconomicLabel(animatedEconomic)}</span> */}
           </div>
           <div className="relative h-4 bg-muted rounded-full overflow-hidden">
             <div className="absolute inset-0 flex">
@@ -140,8 +140,8 @@ const ThreeAxisVisualization = ({
         {/* Social Axis */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-muted-foreground">Social</span>
-            <span className="text-sm font-bold text-primary">{getSocialLabel(animatedSocial)}</span>
+            <span className="text-sm font-medium text-primary">Social</span>
+            {/* <span className="text-sm font-bold text-primary">{getSocialLabel(animatedSocial)}</span> */}
           </div>
           <div className="relative h-4 bg-muted rounded-full overflow-hidden">
             <div className="absolute inset-0 flex">
@@ -156,16 +156,16 @@ const ThreeAxisVisualization = ({
             ></div>
           </div>
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Authoritarian</span>
             <span>Libertarian</span>
+            <span>Authoritarian</span>
           </div>
         </div>
 
         {/* Foreign Policy Axis */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-muted-foreground">Foreign Policy</span>
-            <span className="text-sm font-bold text-primary">{getForeignLabel(animatedForeign)}</span>
+            <span className="text-sm font-medium text-primary">Foreign Policy</span>
+            {/* <span className="text-sm font-bold text-primary">{getForeignLabel(animatedForeign)}</span> */}
           </div>
           <div className="relative h-4 bg-muted rounded-full overflow-hidden">
             <div className="absolute inset-0 flex">

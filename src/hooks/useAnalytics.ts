@@ -556,27 +556,62 @@ export const useAdminAnalytics = (filters?: AnalyticsFilters) => {
           });
 
           // Calculate figure popularity
-          const figurePopularity = completedSessions
+          // Calculate figure popularity - FIXED
+          const figureGroups: Record<string, any> = {};
+          completedSessions
             .filter(s => s.quizResult?.topFigureMatches)
-            .reduce((acc, s) => {
+            .forEach(s => {
               s.quizResult.topFigureMatches.forEach((figure: any, index: number) => {
-                const existing = acc.find((f: any) => f.figureId === figure.id);
-                if (existing) {
-                  existing.matchCount++;
-                  if (index === 0) existing.topMatchCount++;
-                  existing.averageSimilarity = (existing.averageSimilarity * (existing.matchCount - 1) + figure.similarity) / existing.matchCount;
-                } else {
-                  acc.push({
+                if (!figureGroups[figure.id]) {
+                  figureGroups[figure.id] = {
                     figureId: figure.id,
                     figureName: figure.name,
-                    matchCount: 1,
-                    topMatchCount: index === 0 ? 1 : 0,
-                    averageSimilarity: figure.similarity
-                  });
+                    matchCount: 0,
+                    topMatchCount: 0,
+                    positionCounts: { first: 0, second: 0, third: 0 },
+                    similarities: []
+                  };
                 }
+                figureGroups[figure.id].matchCount++;
+
+                // Track positions
+                if (index === 0) {
+                  figureGroups[figure.id].topMatchCount++;
+                  figureGroups[figure.id].positionCounts.first++;
+                } else if (index === 1) {
+                  figureGroups[figure.id].positionCounts.second++;
+                } else if (index === 2) {
+                  figureGroups[figure.id].positionCounts.third++;
+                }
+
+                // CRITICAL: similarity is already 0-100, don't multiply
+                figureGroups[figure.id].similarities.push(figure.similarity || 0);
               });
-              return acc;
-            }, [] as any[]);
+            });
+
+          const figurePopularityByMatches: any[] = [];
+          const figurePopularityBySimilarity: any[] = [];
+
+          Object.values(figureGroups).forEach((group: any) => {
+            const avgSimilarity = group.similarities.length > 0
+              ? group.similarities.reduce((a: number, b: number) => a + b, 0) / group.similarities.length
+              : 0;
+
+            const figureData = {
+              ...group,
+              averageSimilarity: avgSimilarity,
+              matchPercentage: (group.matchCount / (completedSessions.length * 3)) * 100
+            };
+
+            figurePopularityByMatches.push(figureData);
+            figurePopularityBySimilarity.push({ ...figureData });
+          });
+
+          // Sort by match count
+          figurePopularityByMatches.sort((a, b) => b.matchCount - a.matchCount);
+
+          // Sort by similarity
+          figurePopularityBySimilarity.sort((a, b) => b.averageSimilarity - a.averageSimilarity);
 
           // Calculate feedback rating
           const feedbackSessions = completedSessions.filter(s =>
@@ -597,8 +632,9 @@ export const useAdminAnalytics = (filters?: AnalyticsFilters) => {
             monthlyActiveUsers: totalUsers,
             questionStatistics: [],
             ideologyDistribution,
-            figurePopularity: figurePopularity.sort((a, b) => b.matchCount - a.matchCount),
-            deviceStats,
+            figurePopularity: figurePopularityByMatches,
+            figurePopularityByMatches,
+            figurePopularityBySimilarity, deviceStats,
             browserStats,
             referrerStats,
             peakUsageHours: Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 })),

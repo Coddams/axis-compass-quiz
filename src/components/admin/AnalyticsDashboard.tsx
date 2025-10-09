@@ -22,6 +22,8 @@ import {
 import UserAnalyticsTable from './UserAnalyticsTable';
 import QuizStatistics from './QuizStatistics';
 import IdeologyDistributionTab from './IdeologyDistributionTab';
+import FigurePopularityTab from './FigurePopularityTab';
+
 
 const AnalyticsDashboard = () => {
   const [filters, setFilters] = useState<AnalyticsFilters>({
@@ -256,8 +258,8 @@ const AnalyticsDashboard = () => {
                           <Star
                             key={i}
                             className={`w-4 h-4 ${i < Math.round(analytics.averageFeedbackRating)
-                                ? 'fill-primary text-primary'
-                                : 'text-muted-foreground'
+                              ? 'fill-primary text-primary'
+                              : 'text-muted-foreground'
                               }`}
                           />
                         ))}
@@ -300,35 +302,20 @@ const AnalyticsDashboard = () => {
         </TabsContent>
 
         <TabsContent value="figures">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Historical Figure Popularity</h3>
-            {analytics.figurePopularity.length > 0 ? (
-              <div className="space-y-4">
-                {analytics.figurePopularity.map((figure, index) => (
-                  <div key={figure.figureId} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="text-2xl font-bold text-muted-foreground">#{index + 1}</div>
-                      <div>
-                        <h4 className="font-medium">{figure.figureName}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {figure.matchCount} total matches • {figure.topMatchCount} top matches
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-semibold">{(figure.averageSimilarity * 100).toFixed(1)}%</div>
-                      <div className="text-sm text-muted-foreground">Avg. Similarity</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
+          {analytics.figurePopularityByMatches && analytics.figurePopularityBySimilarity ? (
+            <FigurePopularityTab
+              byMatches={analytics.figurePopularityByMatches}
+              bySimilarity={analytics.figurePopularityBySimilarity}
+            />
+          ) : (
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Historical Figure Popularity</h3>
               <div className="text-center py-8 text-muted-foreground">
                 <p>No figure matching data available yet.</p>
                 <p className="text-sm mt-2">Figure popularity will appear after users complete the quiz.</p>
               </div>
-            )}
-          </Card>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>

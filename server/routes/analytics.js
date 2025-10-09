@@ -251,6 +251,10 @@ router.get('/', requireAdmin, async (req, res) => {
     const ideologyDistribution = [];
     const figurePopularity = [];
 
+    // Declare these OUTSIDE the if block
+    let figurePopularityByMatches = [];
+    let figurePopularityBySimilarity = [];
+
     // Calculate from completed quizzes with results
     const completedWithResults = completedSessions.filter(s => s.quizResult?.resultData?.matchedIdeology);
 
@@ -299,33 +303,66 @@ router.get('/', requireAdmin, async (req, res) => {
               figureName: figure.name,
               matchCount: 0,
               topMatchCount: 0,
+              positionCounts: { first: 0, second: 0, third: 0 },
               similarities: []
             };
           }
           figureGroups[figure.id].matchCount++;
-          if (index === 0) figureGroups[figure.id].topMatchCount++; // Top match
+
+          // Track position
+          if (index === 0) {
+            figureGroups[figure.id].topMatchCount++;
+            figureGroups[figure.id].positionCounts.first++;
+          } else if (index === 1) {
+            figureGroups[figure.id].positionCounts.second++;
+          } else if (index === 2) {
+            figureGroups[figure.id].positionCounts.third++;
+          }
+
           figureGroups[figure.id].similarities.push(figure.similarity || 0);
         });
       });
 
+      // Calculate averages and create figure popularity lists
       Object.values(figureGroups).forEach(group => {
-        figurePopularity.push({
-          ...group,
-          averageSimilarity: group.similarities.length > 0
-            ? group.similarities.reduce((a, b) => a + b, 0) / group.similarities.length
-            : 0
-        });
+        const avgSimilarity = group.similarities.length > 0
+          ? group.similarities.reduce((a, b) => a + b, 0) / group.similarities.length
+          : 0;
+
+        const figureData = {
+          figureId: group.figureId,
+          figureName: group.figureName,
+          matchCount: group.matchCount,
+          topMatchCount: group.topMatchCount,
+          positionCounts: group.positionCounts,
+          averageSimilarity: avgSimilarity,
+          matchPercentage: (group.matchCount / (completedWithResults.length * 3)) * 100
+        };
+
+        figurePopularityByMatches.push({ ...figureData });
+        figurePopularityBySimilarity.push({ ...figureData });
+        figurePopularity.push(figureData); // For backward compatibility
       });
 
-      // Sort by match count
-      figurePopularity.sort((a, b) => b.matchCount - a.matchCount);
+      // Sort by match count (most frequent)
+      figurePopularityByMatches.sort((a, b) => b.matchCount - a.matchCount);
+
+      // Sort by average similarity (highest scores)
+      figurePopularityBySimilarity.sort((a, b) => b.averageSimilarity - a.averageSimilarity);
+
+      console.log('📊 Figure popularity calculated:', {
+        totalFigures: Object.keys(figureGroups).length,
+        topByMatches: figurePopularityByMatches[0]?.figureName,
+        topBySimilarity: figurePopularityBySimilarity[0]?.figureName
+      });
     }
 
-    // Calculate feedback stats - BEFORE THIS WAS HARDCODED
+    // Calculate feedback stats
     const feedbackSessions = completedSessions.filter(s => {
-      // Check both possible locations for feedback
       const hasFeedback = s.quizResult?.feedbackGiven?.rating > 0;
-      console.log(`Session ${s.sessionId}: hasFeedback=${hasFeedback}`, s.quizResult?.feedbackGiven);
+      if (hasFeedback) {
+        console.log(`Session ${s.sessionId}: has feedback rating ${s.quizResult.feedbackGiven.rating}`);
+      }
       return hasFeedback;
     });
 
@@ -335,7 +372,7 @@ router.get('/', requireAdmin, async (req, res) => {
 
     const feedbackCount = feedbackSessions.length;
 
-    console.log(`📊 Feedback stats: ${feedbackCount} responses, avg rating: ${averageFeedbackRating}`);
+    console.log(`📊 Feedback stats: ${feedbackCount} responses, avg rating: ${averageFeedbackRating.toFixed(2)}`);
 
     const analytics = {
       totalUsers,
@@ -343,27 +380,30 @@ router.get('/', requireAdmin, async (req, res) => {
       totalIncompletedQuizzes,
       averageCompletionTime,
       averageCompletionRate: totalUsers > 0 ? totalCompletedQuizzes / totalUsers : 0,
-      dailyActiveUsers: totalUsers, // Simplified
+      dailyActiveUsers: totalUsers,
       weeklyActiveUsers: totalUsers,
       monthlyActiveUsers: totalUsers,
-      questionStatistics: [], // Can be implemented if needed
+      questionStatistics: [],
       ideologyDistribution,
-      figurePopularity,
+      figurePopularity, // Backward compatible (sorted by matches)
+      figurePopularityByMatches, // Most matched figures
+      figurePopularityBySimilarity, // Highest similarity scores
       deviceStats,
       browserStats,
       referrerStats,
       peakUsageHours: Array.from({ length: 24 }, (_, i) => ({ hour: i, count: Math.floor(Math.random() * 10) + 1 })),
-      userRetentionRate: 0.5, // Simplified
-      averageFeedbackRating,  // ← Now uses real data
+      userRetentionRate: 0.5,
+      averageFeedbackRating,
       feedbackCount
     };
-
+    
     res.json(analytics);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'server error' });
   }
 });
+
 
 // Export CSV (admin)
 router.post('/export', requireAdmin, async (req, res) => {

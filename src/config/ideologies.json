@@ -3,9 +3,18 @@
     "id": "social_democrat",
     "name": "Social Democrat",
     "range": {
-      "economic": [-2, -0.5],
-      "social": [-0.5, 1],
-      "foreign": [-1, 1]
+      "economic": [
+        -2,
+        -0.5
+      ],
+      "social": [
+        -0.5,
+        1
+      ],
+      "foreign": [
+        -1,
+        1
+      ]
     },
     "description": "You believe in strong public programs, fair redistribution, and balancing freedom with social responsibility."
   },
@@ -13,19 +22,56 @@
     "id": "progressive",
     "name": "Progressive",
     "range": {
-      "economic": [-2, -0.5],
-      "social": [-2, -1],
-      "foreign": [-1, 1]
+      "economic": [
+        -2,
+        -0.5
+      ],
+      "social": [
+        -2,
+        -1
+      ],
+      "foreign": [
+        -1,
+        1
+      ]
     },
     "description": "You want bold reforms to tackle inequality and injustice. You value inclusivity and diversity."
+  },
+  {
+    "id": "democratic_socialist",
+    "name": "Democratic Socialist",
+    "range": {
+      "economic": [
+        -1.5,
+        -0.8
+      ],
+      "social": [
+        -0.8,
+        0.2
+      ],
+      "foreign": [
+        -0.5,
+        0.5
+      ]
+    },
+    "description": "You believe in democratically implementing socialist policies while maintaining civil liberties and political freedoms."
   },
   {
     "id": "centrist",
     "name": "Centrist",
     "range": {
-      "economic": [-0.5, 0.5],
-      "social": [-0.5, 0.5],
-      "foreign": [-0.5, 0.5]
+      "economic": [
+        -0.5,
+        0.5
+      ],
+      "social": [
+        -0.5,
+        0.5
+      ],
+      "foreign": [
+        -0.5,
+        0.5
+      ]
     },
     "description": "You believe in balance and compromise. You value both markets and government action."
   },
@@ -33,29 +79,132 @@
     "id": "neoliberal",
     "name": "Neoliberal",
     "range": {
-      "economic": [0.5, 2],
-      "social": [-0.5, 0.5],
-      "foreign": [0.5, 2]
+      "economic": [
+        0.5,
+        2
+      ],
+      "social": [
+        -0.5,
+        0.5
+      ],
+      "foreign": [
+        0.5,
+        2
+      ]
     },
-    "description": "You trust markets and globalization. You value economic growth, trade and international cooperation."
+    "description": "You trust markets, globalization, and institutional reform. You favor liberalized trade, market-friendly policy and international cooperation."
+  },
+  {
+    "id": "classical_liberal",
+    "name": "Classical Liberal",
+    "range": {
+      "economic": [
+        0.5,
+        1.6
+      ],
+      "social": [
+        -1.2,
+        0.6
+      ],
+      "foreign": [
+        -0.5,
+        0.8
+      ]
+    },
+    "description": "You emphasize individual liberty, rule of law, limited government, and free markets — a historic liberal tradition that is economically pro-market but socially/libertarian on civil freedoms."
   },
   {
     "id": "libertarian",
     "name": "Libertarian",
     "range": {
-      "economic": [1, 2],
-      "social": [-2, -1],
-      "foreign": [-1, 1]
+      "economic": [
+        1,
+        2
+      ],
+      "social": [
+        -2,
+        -1
+      ],
+      "foreign": [
+        -1.5,
+        0
+      ]
     },
-    "description": "You value personal freedom above all. You want minimal state role in the economy and private lives."
+    "description": "You value personal freedom above all. You want minimal state role in the economy and private lives, and favor non-interventionist foreign policy."
+  },
+  {
+    "id": "objectivist",
+    "name": "Objectivist",
+    "range": {
+      "economic": [
+        1.6,
+        2
+      ],
+      "social": [
+        -2,
+        -0.8
+      ],
+      "foreign": [
+        -0.5,
+        0.5
+      ]
+    },
+    "description": "Philosophically-driven pro-capitalist position (Ayn Rand / Objectivism): radical individualism, moral defense of laissez-faire capitalism, and strong commitment to individual rights."
+  },
+  {
+    "id": "paleoconservative",
+    "name": "Paleoconservative",
+    "range": {
+      "economic": [
+        -0.3,
+        0.5
+      ],
+      "social": [
+        0.8,
+        1.8
+      ],
+      "foreign": [
+        -1.2,
+        -0.3
+      ]
+    },
+    "description": "You emphasize traditional values, national sovereignty, and non-interventionist foreign policy. You are skeptical of both big government and globalization."
+  },
+  {
+    "id": "neoconservative",
+    "name": "Neoconservative",
+    "range": {
+      "economic": [
+        0.3,
+        1.2
+      ],
+      "social": [
+        0.3,
+        1.0
+      ],
+      "foreign": [
+        1.2,
+        2.0
+      ]
+    },
+    "description": "You favor free markets, traditional values, and an assertive foreign policy to promote democracy and national interests abroad."
   },
   {
     "id": "authoritarian_conservative",
     "name": "Authoritarian Conservative",
     "range": {
-      "economic": [0, 1.5],
-      "social": [1, 2],
-      "foreign": [0, 2]
+      "economic": [
+        0,
+        1.5
+      ],
+      "social": [
+        1,
+        2
+      ],
+      "foreign": [
+        0,
+        2
+      ]
     },
     "description": "You emphasize law, order, and tradition. You support strong leadership and a firm stance abroad."
   },
@@ -63,19 +212,56 @@
     "id": "nationalist_populist",
     "name": "Nationalist Populist",
     "range": {
-      "economic": [-0.5, 0.5],
-      "social": [1, 2],
-      "foreign": [1, 2]
+      "economic": [
+        -1.0,
+        1.0
+      ],
+      "social": [
+        1,
+        2
+      ],
+      "foreign": [
+        1,
+        2
+      ]
     },
     "description": "You prioritize national sovereignty and culture, and favor protecting ordinary citizens from elite interests."
+  },
+  {
+    "id": "civic_nationalist_authoritarian",
+    "name": "Authoritarian Civic Nationalist",
+    "range": {
+      "economic": [
+        -0.5,
+        0.5
+      ],
+      "social": [
+        1.5,
+        2.0
+      ],
+      "foreign": [
+        0.8,
+        1.5
+      ]
+    },
+    "description": "You believe in a strong and unified nation guided by firm leadership. While you accept limited economic freedom, you emphasize order, stability, and assertive foreign engagement to protect national interests."
   },
   {
     "id": "anarchist",
     "name": "Anarchist",
     "range": {
-      "economic": [-2, -1],
-      "social": [-2, -1],
-      "foreign": [-2, -1]
+      "economic": [
+        -2,
+        -1
+      ],
+      "social": [
+        -2,
+        -1
+      ],
+      "foreign": [
+        -2,
+        -1
+      ]
     },
     "description": "You reject centralized authority and prefer voluntary cooperation over state power."
   }

@@ -7,6 +7,8 @@ const QuestionEventSchema = new Schema({
   selectedAnswer: Schema.Types.Mixed,
   timeSpent: Number,
   timestamp: { type: Date, default: Date.now },
+  hesitationTime: Number,      // ← ADD THIS
+  changedAnswer: Boolean
 });
 
 const QuizResultSchema = new Schema({

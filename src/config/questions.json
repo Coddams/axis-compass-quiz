@@ -1,12 +1,12 @@
 [
   {
     "id": "q1_france_1789",
-    "text": "It’s 1789. You’re King Louis XVI of France. The palace shines, but the people are hungry and angry. Your money chest is empty. What’s your move?",
+    "text": "It's 1789. You're King Louis XVI of France. The palace shines, but the people are hungry and angry. Your money chest is empty. What's your move?",
     "answers": [
       {
         "id": "q1a",
         "text": "Tell the wealthy nobles and church to start paying taxes too.",
-        "vector": [-2, 0.5, 0],
+        "vector": [-2, 0, 0],
         "implications": {
           "pros": ["Brings in fresh money.", "Feels fair to the common people."],
           "cons": ["Rich elites will resist strongly."]
@@ -15,7 +15,7 @@
       {
         "id": "q1b",
         "text": "Raise taxes on the common folk again.",
-        "vector": [2, -0.5, 0],
+        "vector": [2, 0, 0],
         "implications": {
           "pros": ["Fast way to refill the treasury."],
           "cons": ["Already struggling people may explode in anger."]
@@ -33,22 +33,22 @@
       {
         "id": "q1d",
         "text": "Cut palace spending and put on public events to calm the crowd.",
-        "vector": [0, 0.5, 0],
+        "vector": [0, 0, 0],
         "implications": {
-          "pros": ["Shows you care about the people’s struggles."],
-          "cons": ["Doesn’t fix the deep money shortage."]
+          "pros": ["Shows you care about the people's struggles."],
+          "cons": ["Doesn't fix the deep money shortage."]
         }
       }
     ]
   },
   {
     "id": "q2_russia_1917",
-    "text": "It’s 1917 in Russia. The empire is collapsing, soldiers are deserting, and workers are striking. You’ve got to decide what kind of economy the new state should build. What’s your plan?",
+    "text": "It's 1917 in Russia. The empire is collapsing, soldiers are deserting, and workers are striking. You've got to decide what kind of economy the new state should build. What's your plan?",
     "answers": [
       {
         "id": "q2a",
         "text": "Hand over factories and land to the workers and peasants.",
-        "vector": [-2, 0.5, -0.5],
+        "vector": [-2, 0, 0],
         "implications": {
           "pros": ["Gives power to the majority.", "Could end class tensions."],
           "cons": ["Elites will fight back hard.", "Risk of chaos at first."]
@@ -66,7 +66,7 @@
       {
         "id": "q2c",
         "text": "Let free markets run and encourage private ownership.",
-        "vector": [2, -0.5, 0.5],
+        "vector": [2, 0, 0],
         "implications": {
           "pros": ["Attracts investment.", "Boosts innovation."],
           "cons": ["Poor may stay poor.", "Could spark new inequality."]
@@ -75,7 +75,7 @@
       {
         "id": "q2d",
         "text": "Form worker cooperatives where people share profits equally.",
-        "vector": [-1, 0.5, 0],
+        "vector": [-1, 0, 0],
         "implications": {
           "pros": ["Fair pay and shared responsibility."],
           "cons": ["Not always efficient.", "Hard to scale up quickly."]
@@ -85,12 +85,12 @@
   },
   {
     "id": "q3_us_1933",
-    "text": "It’s 1933. You’re Franklin D. Roosevelt, stepping into the Great Depression. Millions are jobless, banks have collapsed, and people are losing hope. What’s your first big move?",
+    "text": "It's 1933. You're Franklin D. Roosevelt, stepping into the Great Depression. Millions are jobless, banks have collapsed, and people are losing hope. What's your first big move?",
     "answers": [
       {
         "id": "q3a",
         "text": "Launch huge public works projects to put people back to work.",
-        "vector": [-1.5, 0.2, 0],
+        "vector": [-1.5, 0, 0],
         "implications": {
           "pros": ["Creates jobs fast.", "Rebuilds infrastructure."],
           "cons": ["Costs a lot of government money."]
@@ -99,7 +99,7 @@
       {
         "id": "q3b",
         "text": "Cut taxes and encourage private businesses to hire again.",
-        "vector": [1.5, -0.2, 0],
+        "vector": [1.5, 0, 0],
         "implications": {
           "pros": ["Boosts private growth.", "Quick relief for business owners."],
           "cons": ["Unclear if it helps the poorest quickly."]
@@ -108,31 +108,31 @@
       {
         "id": "q3c",
         "text": "Focus on stabilizing banks and saving the financial system first.",
-        "vector": [0.5, 0, 0.5],
+        "vector": [0.5, 0, 0],
         "implications": {
           "pros": ["Prevents complete collapse.", "Restores confidence."],
-          "cons": ["Doesn’t directly help workers immediately."]
+          "cons": ["Doesn't directly help workers immediately."]
         }
       },
       {
         "id": "q3d",
         "text": "Distribute food and basic needs directly to families.",
-        "vector": [-0.5, 0.5, 0],
+        "vector": [-0.5, 0, 0],
         "implications": {
           "pros": ["Direct help to the suffering.", "Fast relief."],
-          "cons": ["Doesn’t solve unemployment.", "Expensive to keep up."]
+          "cons": ["Doesn't solve unemployment.", "Expensive to keep up."]
         }
       }
     ]
   },
   {
     "id": "q4_china_1978",
-    "text": "It’s 1978. You’re Deng Xiaoping in China. The country is poor after years of strict central control. People want change. How do you open the economy?",
+    "text": "It's 1978. You're Deng Xiaoping in China. The country is poor after years of strict central control. People want change. How do you open the economy?",
     "answers": [
       {
         "id": "q4a",
         "text": "Allow farmers to sell extra crops in open markets.",
-        "vector": [1.5, -0.2, 0],
+        "vector": [1.5, 0, 0],
         "implications": {
           "pros": ["Boosts food supply.", "Encourages hard work."],
           "cons": ["Moves away from strict equality."]
@@ -141,7 +141,7 @@
       {
         "id": "q4b",
         "text": "Stick to full state control of farming and industry.",
-        "vector": [-2, 0.5, 0],
+        "vector": [-2, 0, 0],
         "implications": {
           "pros": ["Keeps equality and control."],
           "cons": ["Risk of shortages and low productivity."]
@@ -159,7 +159,7 @@
       {
         "id": "q4d",
         "text": "Encourage village-run businesses that are partly private, partly collective.",
-        "vector": [0, 0.2, 0],
+        "vector": [0, 0, 0],
         "implications": {
           "pros": ["Blends old and new.", "Keeps local pride."],
           "cons": ["Hard to manage fairly across regions."]
@@ -169,12 +169,12 @@
   },
   {
     "id": "q5_greece_2015",
-    "text": "It’s 2015. You’re Prime Minister of Greece. The country is broke, protests are everywhere, and international lenders are demanding tough choices. How do you respond?",
+    "text": "It's 2015. You're Prime Minister of Greece. The country is broke, protests are everywhere, and international lenders are demanding tough choices. How do you respond?",
     "answers": [
       {
         "id": "q5a",
         "text": "Agree to big spending cuts so you can keep getting bailout money.",
-        "vector": [2, -0.5, 1],
+        "vector": [2, 0, 1],
         "implications": {
           "pros": ["Keeps access to global loans.", "Prevents sudden collapse."],
           "cons": ["Harsh pain for workers and families."]
@@ -183,7 +183,7 @@
       {
         "id": "q5b",
         "text": "Refuse harsh cuts and push for debt forgiveness.",
-        "vector": [-1, 0.2, -0.5],
+        "vector": [-1, 0, -0.5],
         "implications": {
           "pros": ["Protects ordinary people more.", "Pushes back against creditors."],
           "cons": ["Risk of being cut off from funds."]
@@ -192,7 +192,7 @@
       {
         "id": "q5c",
         "text": "Exit the euro and print your own national currency.",
-        "vector": [-2, 0.5, -1],
+        "vector": [-2, 0, -1],
         "implications": {
           "pros": ["Total control over your money system."],
           "cons": ["Massive chaos in the short term."]
@@ -204,12 +204,11 @@
         "vector": [0, 0, 0],
         "implications": {
           "pros": ["Avoids sudden shocks.", "Keeps options open."],
-          "cons": ["Doesn’t fix the core crisis."]
+          "cons": ["Doesn't fix the core crisis."]
         }
       }
     ]
   },
-
   {
     "id": "q6_berlin_wall_1989",
     "text": "You are a young East German official in 1989. The Berlin Wall is crumbling, and thousands are demanding freedom to travel and speak openly. Do you open the gates or try to keep order?",
@@ -217,7 +216,7 @@
       {
         "id": "q6a",
         "text": "Keep the wall shut tight and call in more guards to hold the line.",
-        "vector": [0, -2, 0],
+        "vector": [0, 2, 0],
         "implications": {
           "pros": ["Maintains strict control in the short term."],
           "cons": ["People may revolt harder, risking chaos and violence."]
@@ -226,7 +225,7 @@
       {
         "id": "q6b",
         "text": "Quietly open some checkpoints to let people through without a big announcement.",
-        "vector": [0, -0.5, 0],
+        "vector": [0, 0.5, 0],
         "implications": {
           "pros": ["Eases some pressure without losing full control."],
           "cons": ["Still keeps people under watch, could anger both sides."]
@@ -235,7 +234,7 @@
       {
         "id": "q6c",
         "text": "Throw open the gates, let people celebrate, and end the wall once and for all.",
-        "vector": [0, 2, 0],
+        "vector": [0, -2, 0],
         "implications": {
           "pros": ["Freedom and unity are restored, history changes forever."],
           "cons": ["Loss of control over the system you serve."]
@@ -259,7 +258,7 @@
       {
         "id": "q7a",
         "text": "Keep apartheid alive and crack down harder on protests.",
-        "vector": [0, -2, 0],
+        "vector": [0, 2, 0],
         "implications": {
           "pros": ["Keeps the old guard in power a little longer."],
           "cons": ["World pressure and local anger will explode."]
@@ -268,7 +267,7 @@
       {
         "id": "q7b",
         "text": "Make small, careful changes while keeping some restrictions.",
-        "vector": [0, -0.5, 0],
+        "vector": [0, 0.5, 0],
         "implications": {
           "pros": ["Tries to calm people without losing all control."],
           "cons": ["Neither side is satisfied, tensions continue."]
@@ -277,7 +276,7 @@
       {
         "id": "q7c",
         "text": "Go all-in: end apartheid, allow free elections, and open society fully.",
-        "vector": [0, 2, 0],
+        "vector": [0, -2, 0],
         "implications": {
           "pros": ["Freedom and equal rights finally arrive."],
           "cons": ["Old leaders lose influence, and transition may be rocky."]
@@ -296,12 +295,12 @@
   },
   {
     "id": "q8_china_tiananmen_1989",
-    "text": "It’s Beijing, 1989. Thousands of students gather in Tiananmen Square asking for more freedom. As a leader, do you crack down or open up?",
+    "text": "It's Beijing, 1989. Thousands of students gather in Tiananmen Square asking for more freedom. As a leader, do you crack down or open up?",
     "answers": [
       {
         "id": "q8a",
         "text": "Send in the army to crush the protests and restore order by force.",
-        "vector": [0, -2, 0],
+        "vector": [0, 2, 0],
         "implications": {
           "pros": ["Keeps firm control of the system."],
           "cons": ["Brutal repression leaves lasting scars and global outrage."]
@@ -310,16 +309,16 @@
       {
         "id": "q8b",
         "text": "Meet with the students, listen, but only offer mild reforms.",
-        "vector": [0, -0.5, 0],
+        "vector": [0, 0.5, 0],
         "implications": {
           "pros": ["Reduces tension without giving too much away."],
-          "cons": ["Doesn’t satisfy protesters; unrest may continue."]
+          "cons": ["Doesn't satisfy protesters; unrest may continue."]
         }
       },
       {
         "id": "q8c",
         "text": "Allow free speech rallies, loosen restrictions, and promise elections.",
-        "vector": [0, 2, 0],
+        "vector": [0, -2, 0],
         "implications": {
           "pros": ["Opens the door to freedom and reform."],
           "cons": ["Loss of control, risks of instability and backlash from hardliners."]
@@ -338,12 +337,12 @@
   },
   {
     "id": "q9_usa_civil_rights_1964",
-    "text": "It’s America, 1964. Civil rights activists are marching, and Congress is debating the Civil Rights Act. Do you support it or resist?",
+    "text": "It's America, 1964. Civil rights activists are marching, and Congress is debating the Civil Rights Act. Do you support it or resist?",
     "answers": [
       {
         "id": "q9a",
         "text": "Block the Civil Rights Act, keeping segregation alive.",
-        "vector": [0, -2, 0],
+        "vector": [0, 2, 0],
         "implications": {
           "pros": ["Appeases segregationist supporters."],
           "cons": ["Deepens injustice, sparks national conflict."]
@@ -352,7 +351,7 @@
       {
         "id": "q9b",
         "text": "Support some changes, but keep certain restrictions.",
-        "vector": [0, -0.5, 0],
+        "vector": [0, 0.5, 0],
         "implications": {
           "pros": ["Tries to calm both sides a little."],
           "cons": ["Neither side is happy; tensions remain high."]
@@ -361,7 +360,7 @@
       {
         "id": "q9c",
         "text": "Support the Act fully: end segregation and guarantee equal rights.",
-        "vector": [0, 2, 0],
+        "vector": [0, -2, 0],
         "implications": {
           "pros": ["Major step toward justice and equality."],
           "cons": ["Strong pushback from powerful groups who oppose change."]
@@ -380,12 +379,12 @@
   },
   {
     "id": "q10_iran_1979",
-    "text": "It’s Iran, 1979. The Shah is gone, and people are fighting over what the new system should look like. Do you back strict religious rule, or a more open society?",
+    "text": "It's Iran, 1979. The Shah is gone, and people are fighting over what the new system should look like. Do you back strict religious rule, or a more open society?",
     "answers": [
       {
         "id": "q10a",
         "text": "Support strict religious leaders and ban Western influence.",
-        "vector": [0, -2, 0],
+        "vector": [0, 2, 0],
         "implications": {
           "pros": ["Unites supporters under a strong moral code."],
           "cons": ["Limits freedoms, creates lasting divisions."]
@@ -394,7 +393,7 @@
       {
         "id": "q10b",
         "text": "Support some religious rules but allow limited freedoms.",
-        "vector": [0, -0.5, 0],
+        "vector": [0, 0.5, 0],
         "implications": {
           "pros": ["Blends tradition with small reforms."],
           "cons": ["Neither conservatives nor liberals are fully happy."]
@@ -403,7 +402,7 @@
       {
         "id": "q10c",
         "text": "Support a secular democracy where people can choose freely.",
-        "vector": [0, 2, 0],
+        "vector": [0, -2, 0],
         "implications": {
           "pros": ["Encourages openness, freedom, and choice."],
           "cons": ["Seen as betrayal by strict religious groups."]
@@ -420,213 +419,212 @@
       }
     ]
   },
-
   {
-    "id": "q11_rome_49bc",
-    "text": "It’s Rome, 49 BC. You are Julius Caesar standing at the Rubicon. The Senate ordered you to disband your army and return to Rome as a private citizen. Do you obey or march on Rome?",
+    "id": "q11_ww2_1941",
+    "text": "It's 1941. You lead a neutral country. Hitler's Germany is conquering Europe, and your neighbors are begging for help. What do you do?",
     "answers": [
       {
         "id": "q11a",
-        "text": "Obey the Senate, disband your troops, and return quietly.",
+        "text": "Stay completely neutral — this isn't your war.",
         "vector": [0, 0, -2],
         "implications": {
-          "pros": ["Keeps peace with the Senate and avoids civil war."],
-          "cons": ["Lose your power and leave your fate in rivals’ hands."]
+          "pros": ["Keeps your people safe from direct conflict."],
+          "cons": ["Allows evil to spread unchecked; you'll be judged by history."]
         }
       },
       {
         "id": "q11b",
-        "text": "Stall, negotiate, and try to keep some influence without open war.",
+        "text": "Send weapons and supplies but no soldiers.",
         "vector": [0, 0, -0.5],
         "implications": {
-          "pros": ["Buys time and keeps options open."],
-          "cons": ["Looks weak, risks being outmaneuvered."]
+          "pros": ["Helps the cause without full commitment."],
+          "cons": ["Half-measures may not be enough; you're still at risk."]
         }
       },
       {
         "id": "q11c",
-        "text": "Cross the Rubicon with your army and march on Rome — take control.",
+        "text": "Join the fight fully — send troops and declare war.",
         "vector": [0, 0, 2],
         "implications": {
-          "pros": ["Seize ultimate power and reshape Rome."],
-          "cons": ["Triggers civil war, heavy bloodshed, and instability."]
+          "pros": ["Stops tyranny, saves lives, upholds justice."],
+          "cons": ["Your soldiers will die; your economy will suffer."]
         }
       },
       {
         "id": "q11d",
-        "text": "Step aside and let your allies or enemies fight it out while you retreat.",
+        "text": "Try to negotiate peace between all sides.",
         "vector": [0, 0, 0],
         "implications": {
-          "pros": ["Stay safe and avoid immediate conflict."],
-          "cons": ["Lose all power and vanish from history."]
+          "pros": ["Could save millions if it works."],
+          "cons": ["Unlikely to succeed; tyrants rarely negotiate in good faith."]
         }
       }
     ]
   },
   {
-    "id": "q12_france_1793",
-    "text": "You are in Revolutionary France, 1793. The king has been executed, and chaos reigns. Do you push for emergency powers or keep liberty alive?",
+    "id": "q12_syria_2013",
+    "text": "It's 2013. Syria is in civil war, chemical weapons have been used, and civilians are dying. Your country has the power to intervene. What do you do?",
     "answers": [
       {
         "id": "q12a",
-        "text": "Grab emergency powers, crush opposition, and rule with force.",
+        "text": "Launch military strikes to stop the atrocities.",
         "vector": [0, 0, 2],
         "implications": {
-          "pros": ["Strong control in dangerous times."],
-          "cons": ["Becomes dictatorship, people may rise against you."]
+          "pros": ["Protects innocent lives, upholds international law."],
+          "cons": ["Risk of wider war, unintended consequences, your soldiers at risk."]
         }
       },
       {
         "id": "q12b",
-        "text": "Keep power centralized but allow some local freedoms.",
-        "vector": [0, 0, 0.5],
+        "text": "Provide humanitarian aid and shelter refugees, but no military action.",
+        "vector": [0, 0, -0.5],
         "implications": {
-          "pros": ["Balance between control and liberty."],
-          "cons": ["Neither side fully trusts you."]
+          "pros": ["Helps victims without escalating violence."],
+          "cons": ["Doesn't stop the killing at its source."]
         }
       },
       {
         "id": "q12c",
-        "text": "Insist on keeping freedom alive, even if it risks disorder.",
+        "text": "Stay out completely — it's not your country's problem.",
         "vector": [0, 0, -2],
         "implications": {
-          "pros": ["Protects liberty and ideals of the Revolution."],
-          "cons": ["Weakens control, risks collapse of the new Republic."]
+          "pros": ["No risk to your troops or resources."],
+          "cons": ["Allows mass atrocities to continue unchecked."]
         }
       },
       {
         "id": "q12d",
-        "text": "Step back, let others take charge, and just survive the chaos.",
-        "vector": [0, 0, 0],
+        "text": "Work through the UN to organize an international coalition response.",
+        "vector": [0, 0, 0.5],
         "implications": {
-          "pros": ["Avoids danger and blame."],
-          "cons": ["History passes you by while stronger forces rise."]
+          "pros": ["Shares the burden, gains legitimacy."],
+          "cons": ["Slow process, may be blocked by rival powers."]
         }
       }
     ]
   },
   {
-    "id": "q13_russia_1917",
-    "text": "You are in Petrograd, 1917. The Tsar is gone, and power is up for grabs. Do you centralize power or share it widely?",
+    "id": "q13_trade_deal_2020",
+    "text": "Your country is negotiating a major trade deal. It will lower prices for consumers but could cost jobs in some industries. What's your position?",
     "answers": [
       {
         "id": "q13a",
-        "text": "Centralize everything under one strong party and crush rivals.",
+        "text": "Sign the deal — free trade benefits everyone in the long run.",
         "vector": [0, 0, 2],
         "implications": {
-          "pros": ["Full control, no rivals to weaken you."],
-          "cons": ["Dictatorship, oppression, and mass unrest."]
+          "pros": ["Lower prices, more choices, stronger global ties."],
+          "cons": ["Some workers lose jobs, communities suffer short-term pain."]
         }
       },
       {
         "id": "q13b",
-        "text": "Keep control in the capital but let local councils run daily life.",
+        "text": "Sign it but with protections for vulnerable industries.",
         "vector": [0, 0, 0.5],
         "implications": {
-          "pros": ["Some flexibility and local buy-in."],
-          "cons": ["Still risks rebellion and confusion."]
+          "pros": ["Balance between openness and protection."],
+          "cons": ["Complicated, may not satisfy either side fully."]
         }
       },
       {
         "id": "q13c",
-        "text": "Allow real democracy with free elections and shared power.",
+        "text": "Reject the deal — protect our workers and industries first.",
         "vector": [0, 0, -2],
         "implications": {
-          "pros": ["True freedom for citizens."],
-          "cons": ["No guarantee of stability, rivals may seize power."]
+          "pros": ["Saves jobs now, shows loyalty to workers."],
+          "cons": ["Higher prices, isolation, retaliation from partners."]
         }
       },
       {
         "id": "q13d",
-        "text": "Stay neutral, back no one, and just try to keep your head down.",
+        "text": "Delay and study it more carefully before deciding.",
         "vector": [0, 0, 0],
         "implications": {
-          "pros": ["Avoids personal danger."],
-          "cons": ["You disappear from the political future."]
+          "pros": ["Buys time to understand all impacts."],
+          "cons": ["Looks indecisive, trading partners may lose patience."]
         }
       }
     ]
   },
   {
-    "id": "q14_usa_1776",
-    "text": "It’s America, 1776. The colonies are rebelling against Britain. Do you build a strong central government or let each colony do its own thing?",
+    "id": "q14_climate_summit_2025",
+    "text": "At a global climate summit, wealthy nations are asked to pay billions to help poorer countries adapt to climate change. Your country is wealthy. What do you do?",
     "answers": [
       {
         "id": "q14a",
-        "text": "Push for a powerful central government to unite the states strongly.",
+        "text": "Contribute generously — this is a global crisis requiring global cooperation.",
         "vector": [0, 0, 2],
         "implications": {
-          "pros": ["Creates unity, strength, and long-term stability."],
-          "cons": ["Central authority may crush local freedoms."]
+          "pros": ["Builds goodwill, addresses shared threat, morally right."],
+          "cons": ["Taxpayers bear the cost, no guarantee funds are used well."]
         }
       },
       {
         "id": "q14b",
-        "text": "Support a central government but leave major powers to the states.",
+        "text": "Contribute something but make sure other rich nations pay their share too.",
         "vector": [0, 0, 0.5],
         "implications": {
-          "pros": ["Balance between unity and freedom."],
-          "cons": ["Conflicts between states may still weaken the system."]
+          "pros": ["Fair burden-sharing, encourages cooperation."],
+          "cons": ["Negotiations may stall if others don't agree."]
         }
       },
       {
         "id": "q14c",
-        "text": "Push for maximum independence — each colony should govern itself.",
+        "text": "Refuse — your country should focus on its own problems first.",
         "vector": [0, 0, -2],
         "implications": {
-          "pros": ["Strong local freedom, less chance of tyranny."],
-          "cons": ["Weak unity, risk of breaking apart."]
+          "pros": ["Keep resources at home, no foreign obligations."],
+          "cons": ["Damages global relationships, climate crisis worsens."]
         }
       },
       {
         "id": "q14d",
-        "text": "Avoid taking a side — focus on surviving the Revolution.",
+        "text": "Offer technical help and expertise instead of cash.",
         "vector": [0, 0, 0],
         "implications": {
-          "pros": ["Stay safe while bigger players fight it out."],
-          "cons": ["Lose your chance to shape the new nation."]
+          "pros": ["Provides value without direct financial cost."],
+          "cons": ["May not be what's needed most; seen as stingy."]
         }
       }
     ]
   },
   {
-    "id": "q15_ethiopia_1974",
-    "text": "It’s Ethiopia, 1974. The Emperor has fallen, and a new government is rising. Do you support military rule or push for a people’s assembly?",
+    "id": "q15_nato_expansion_2008",
+    "text": "It's 2008. NATO is considering expanding to include countries on Russia's border. Russia strongly opposes this. You're a NATO leader. What's your stance?",
     "answers": [
       {
         "id": "q15a",
-        "text": "Support strong military rule to keep order in a dangerous time.",
+        "text": "Expand NATO — these countries deserve protection and have the right to choose.",
         "vector": [0, 0, 2],
         "implications": {
-          "pros": ["Brings quick order and stability."],
-          "cons": ["Crushes freedom, risks dictatorship."]
+          "pros": ["Strengthens alliance, protects democracies, upholds sovereignty."],
+          "cons": ["Provokes Russia, increases tension, risk of conflict."]
         }
       },
       {
         "id": "q15b",
-        "text": "Back a system with some military control but allow community councils.",
+        "text": "Offer partnership but not full membership to avoid provoking Russia.",
         "vector": [0, 0, 0.5],
         "implications": {
-          "pros": ["Keeps peace while giving locals a voice."],
-          "cons": ["Neither full control nor full freedom — could collapse."]
+          "pros": ["Middle ground, maintains some cooperation with Russia."],
+          "cons": ["Leaves countries vulnerable, may satisfy no one."]
         }
       },
       {
         "id": "q15c",
-        "text": "Push for a wide people’s assembly with elections and debate.",
+        "text": "Reject expansion — respect Russia's security concerns.",
         "vector": [0, 0, -2],
         "implications": {
-          "pros": ["True people’s voice, open participation."],
-          "cons": ["Risk of chaos, coups, and endless disagreements."]
+          "pros": ["Reduces tensions, avoids confrontation."],
+          "cons": ["Abandons allies, appeases aggression, weakens NATO credibility."]
         }
       },
       {
         "id": "q15d",
-        "text": "Sit on the sidelines and wait to see which side wins.",
-        "vector": [0, 0, 0],
+        "text": "Freeze expansion talks and focus on dialogue with Russia.",
+        "vector": [0, 0, -0.5],
         "implications": {
-          "pros": ["Stay safe from direct danger."],
-          "cons": ["History moves on without you."]
+          "pros": ["Gives diplomacy a chance, buys time."],
+          "cons": ["May embolden Russia, leaves applicants in limbo."]
         }
       }
     ]

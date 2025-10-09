@@ -108,8 +108,14 @@ export interface FigurePopularity {
   figureId: string;
   figureName: string;
   matchCount: number;
-  averageSimilarity: number;
-  topMatchCount: number; // how many times they were #1 match
+  topMatchCount: number;
+  averageSimilarity: number; // Already a percentage 0-100
+  matchPercentage?: number;
+  positionCounts?: {
+    first: number;
+    second: number;
+    third: number;
+  };
 }
 
 export interface AdminAnalytics {
@@ -124,6 +130,8 @@ export interface AdminAnalytics {
   questionStatistics: QuestionStatistics[];
   ideologyDistribution: IdeologyDistribution[];
   figurePopularity: FigurePopularity[];
+  figurePopularityByMatches?: FigurePopularity[];  
+  figurePopularityBySimilarity?: FigurePopularity[];
   deviceStats: {
     mobile: number;
     desktop: number;

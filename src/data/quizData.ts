@@ -160,11 +160,11 @@ export function calculateResult(
       const dy = soc - f.axis_alignment.social;
       const dz = forn - f.axis_alignment.foreign;
       const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-      const maxDistance = Math.sqrt(3 * 4); // worst case (-2 to +2 per axis)
+      const maxDistance = 4 * Math.sqrt(3);
       const similarity = Math.max(0, 100 * (1 - distance / maxDistance));
 
       // optional weighting by uncertainty
-      const weightedSimilarity = similarity * (1 - (f.uncertainty ?? 0));
+      let weightedSimilarity = similarity;
 
       return { figure: f, similarity: weightedSimilarity };
     })

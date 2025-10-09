@@ -30,8 +30,8 @@ const LandingPage = () => {
       {/* Content */}
       <div className="max-w-4xl mx-auto text-center space-y-8 page-enter page-enter-active relative z-10">
         {/* Logo */}
-        <div className="flex flex-col items-center justify-center space-x-3 mb-8">         
-          <img className="w-96 text-primary" 
+        <div className="flex flex-col items-center justify-center space-x-3 mt-8">         
+          <img className="w-140 text-primary" 
             src="/lovable-uploads/20250909_1139_White Logo Transformation_remix_01k4q0shxzeq9aqzkxhnhw0mp3.png"
             alt="White Logo Transformation"
           />
