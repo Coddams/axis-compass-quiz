@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, Compass, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect  } from "react";
 import { useUser } from "@/contexts/UserContext";
 import TreesCard from "@/components/TreesCard";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -22,6 +22,19 @@ const LandingPage = () => {
     '/lovable-uploads/mlkPublic.png',
     '/lovable-uploads/brown.png',
   ];
+
+  
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Press Ctrl+Shift+A to access admin
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        navigate('/admin/login');
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [navigate]);
 
   const handleStartQuiz = () => {
     const trimmedName = inputName.trim();
