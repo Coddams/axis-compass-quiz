@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: your-app-name
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+```
+
+### Alternative: Add `_redirects` file (if using Vite)
+
+Create a file called `_redirects` in your `public/` folder:
+```
+/*    /index.html   200 
