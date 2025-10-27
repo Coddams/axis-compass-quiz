@@ -2,13 +2,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { UserProvider } from "./contexts/UserContext";
+
 import LandingPage from "./pages/LandingPage";
 import QuizPage from "./pages/QuizPage";
 import ResultPage from "./pages/ResultPage";
 import SharePage from "./pages/SharePage";
-import AdminPage from "./pages/AdminPage";
+import AdminLogin from "./pages/AdminLogin";     // 🆕 new login page
+import ProtectedAdminPage from "./pages/ProtectedAdminPage"; // 🆕 wraps real admin content
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,7 +28,11 @@ const App = () => (
               <Route path="/quiz" element={<QuizPage />} />
               <Route path="/result" element={<ResultPage />} />
               <Route path="/share" element={<SharePage />} />
-              <Route path="/admin" element={<AdminPage />} />
+              
+              {/* 🧱 Admin routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<ProtectedAdminPage />} />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

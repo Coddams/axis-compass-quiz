@@ -25,14 +25,14 @@ const ADMIN_KEY = (import.meta.env.VITE_ADMIN_API_KEY as string | undefined)
   || null;
 
 /** Build headers helper. includeAdmin=true adds Authorization/x-api-key headers (only when ADMIN_KEY set) */
-function buildHeaders(includeAdmin = false, isJson = true): Record<string, string> {
+function buildHeaders(isJson = true): Record<string, string> {
   const headers: Record<string, string> = {};
   if (isJson) headers['Content-Type'] = 'application/json';
-  if (includeAdmin && ADMIN_KEY) {
-    // include both common header styles; server accepts x-api-key or Authorization Bearer
-    headers['x-api-key'] = ADMIN_KEY;
-    headers['Authorization'] = `Bearer ${ADMIN_KEY}`;
-  }
+
+  // 🚫 No admin key should be attached directly here
+  // If user is logged in as admin, the browser will automatically include
+  // an HttpOnly cookie (set by the server after login)
+  
   return headers;
 }
 

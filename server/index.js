@@ -5,14 +5,17 @@ const mongoose = require('mongoose');
 const morgan = require('morgan');
 const cors = require('cors');
 const analyticsRoutes = require('./routes/analytics');
+const adminAuthRoutes = require('./routes/adminAuth');
 const app = express();
 const PORT = process.env.PORT || 5000;
+const cookieParser = require('cookie-parser');
 
 app.use(cors({
   origin: true,
   credentials: true
 }));
 app.use(express.json({ limit: '2mb' }));
+app.use(cookieParser());
 app.use(morgan('dev'));
 app.set('trust proxy', true); // trust X-Forwarded-* headers when behind proxies
 
@@ -31,6 +34,7 @@ app.get('/', (req, res) => {
 
 // API routes
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminAuthRoutes);
 app.get('/api/health', (req, res) => res.json({ ok: true, env: process.env.NODE_ENV }));
 
 async function start() {

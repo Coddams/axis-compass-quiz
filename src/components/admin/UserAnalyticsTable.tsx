@@ -22,31 +22,34 @@ import {
 import { Search, Eye, RefreshCw, CheckCircle, XCircle, Clock, Star } from 'lucide-react';
 import { UserAnalytics } from '@/types/analytics';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
-const API_KEY = import.meta.env.VITE_ADMIN_API_KEY || 'CHANGE_ME';
 
 const UserAnalyticsTable = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState<UserAnalytics[]>([]);
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE}/?api_key=${API_KEY}`);
-      const data = await response.json();
-
-      // Fetch individual user sessions
-      const sessionsResponse = await fetch(`${API_BASE}/sessions?api_key=${API_KEY}`);
-      const sessionsData = await sessionsResponse.json();
-      setUsers(sessionsData || []);
-    } catch (error) {
-      console.error('Failed to fetch users:', error);
-      setUsers([]);
-    } finally {
-      setLoading(false);
+ const fetchUsers = async () => {
+  setLoading(true);
+  try {
+    // Remove API_BASE and API_KEY - use relative URL with cookies
+    const sessionsResponse = await fetch('/api/analytics/sessions', {
+      credentials: 'include' // Send cookies for authentication
+    });
+    
+    if (!sessionsResponse.ok) {
+      throw new Error('Failed to fetch sessions');
     }
-  };
+    
+    const sessionsData = await sessionsResponse.json();
+    console.log('Fetched sessions:', sessionsData); // Debug
+    setUsers(Array.isArray(sessionsData) ? sessionsData : []);
+  } catch (error) {
+    console.error('Failed to fetch users:', error);
+    setUsers([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchUsers();

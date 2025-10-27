@@ -4,6 +4,9 @@ const router = express.Router();
 const UserAnalytics = require('../models/Analytics');
 const rateLimit = require('express-rate-limit');
 
+const requireAdmin = require('../middleware/requireAdmin');
+
+
 const adminApiKey = process.env.API_KEY_ADMIN || 'CHANGE_ME';
 
 // basic rate limiter for all analytics endpoints
@@ -143,12 +146,6 @@ router.put('/session/:sessionId', async (req, res) => {
   }
 });
 
-// Admin-only endpoints below: require API key
-function requireAdmin(req, res, next) {
-  const key = req.get('x-api-key') || req.query.api_key;
-  if (!key || key !== adminApiKey) return res.status(401).json({ error: 'unauthorized' });
-  next();
-}
 
 // Get raw sessions for detailed analysis (admin only)
 router.get('/sessions', requireAdmin, async (req, res) => {
